@@ -37,6 +37,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Loader2 } from "lucide-react"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
@@ -293,8 +294,8 @@ export default function RetroBoard() {
             <Button onClick={handleCardSubmit} disabled={!isSubmitEnabled}>Submit</Button>
           </div>
           <div className="flex flex-1 overflow-hidden">
-            <div className="flex-1 mr-4 overflow-auto">
-              <div className="grid grid-cols-4 gap-4 h-full">
+            <ScrollArea className="flex-1 mr-4">
+              <div className="grid grid-cols-4 gap-4 h-full pr-4">
                 {typesInfo.map((column, index) => (
                   <div key={column.id} className={`${column.color} p-4 rounded-lg overflow-auto ${index === 0 ? 'ml-4' : ''}`}>
                     <h3 className="text-lg font-bold mb-2 font-heading">{column.title}</h3>
@@ -374,9 +375,9 @@ export default function RetroBoard() {
                   </div>
                 ))}
               </div>
-            </div>
+            </ScrollArea>
             {isSidebarOpen && (
-              <div className="w-[300px] overflow-auto pl-1 pr-4">
+              <ScrollArea className="w-[300px] pl-1 pr-4">
                 <h3 className="text-lg font-bold mb-2 font-heading">Action Items</h3>
                 <div className="mb-4">
                   <Label htmlFor="assignee">Assignee</Label>
@@ -497,7 +498,7 @@ export default function RetroBoard() {
                     </Card>
                   ))}
                 </div>
-              </div>
+              </ScrollArea>
             )}
           </div>
           <div className="h-4"></div>
