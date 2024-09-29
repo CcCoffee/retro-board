@@ -19,7 +19,7 @@ export default function LoginPage() {
         authService.setCurrentUser(user)
         router.push("/") // 登录成功后重定向到主页
       } catch (error) {
-        console.error("登录失败:", error)
+        console.error("Login failed:", error)
         // 这里可以添加错误处理,比如显示错误消息
       }
     }
@@ -52,7 +52,7 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <Input 
-              placeholder="用户名" 
+              placeholder="Username"
               className="mb-4" 
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -60,7 +60,7 @@ export default function LoginPage() {
             />
             <Input 
               type="password" 
-              placeholder="密码" 
+              placeholder="Password"
               className="mb-4"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -73,7 +73,7 @@ export default function LoginPage() {
               onClick={handleLogin} 
               disabled={!username || !password}
             >
-              登录
+              Login
             </Button>
           </CardFooter>
         </Card>
