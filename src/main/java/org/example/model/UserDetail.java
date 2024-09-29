@@ -1,14 +1,21 @@
 package org.example.model;
 
-public class User {
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+
+import java.util.Collections;
+
+public class UserDetail extends User {
     private String employeeType;
     private String employeeId;
     private String displayName;
     private String firstName;
     private String lastName;
+    private String avatar;
     private String email;
 
-    public User(String employeeType, String employeeId, String displayName, String firstName, String lastName, String email) {
+    public UserDetail(String employeeType, String employeeId, String displayName, String firstName, String lastName, String email, String password, String role) {
+        super(employeeId, password, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
         this.employeeType = employeeType;
         this.employeeId = employeeId;
         this.displayName = displayName;
@@ -17,7 +24,25 @@ public class User {
         this.email = email;
     }
 
-    // Getters and setters
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 
     public String getEmployeeType() {
         return employeeType;
@@ -33,10 +58,6 @@ public class User {
 
     public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
-    }
-
-    public String getDisplayName() {
-        return displayName;
     }
 
     public void setDisplayName(String displayName) {
@@ -57,13 +78,5 @@ public class User {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 }
