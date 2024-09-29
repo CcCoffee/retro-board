@@ -473,10 +473,10 @@ export default function RetroBoard() {
                           : "bg-yellow-100"
                       }`}
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="px-4 pt-2 pb-0">
                         <p className="whitespace-pre-wrap break-words">{item.content}</p>
                       </CardContent>
-                      <div className="h-[40px] flex justify-between items-center px-4">
+                      <div className="h-[40px] flex justify-between items-center pl-4 pr-2">
                         <div className="flex items-center space-x-2 overflow-hidden">
                           <span className="text-xs text-muted-foreground truncate">
                             {users.find(user => user.id === item.assignee)?.name || 'Unassigned'}
