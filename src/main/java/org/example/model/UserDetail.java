@@ -3,9 +3,10 @@ package org.example.model;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
+import java.io.Serializable;
 import java.util.Collections;
 
-public class UserDetail extends User {
+public class UserDetail implements Serializable {
     private String employeeType;
     private String employeeId;
     private String displayName;
@@ -15,7 +16,6 @@ public class UserDetail extends User {
     private String email;
 
     public UserDetail(String employeeType, String employeeId, String displayName, String firstName, String lastName, String email, String password, String role) {
-        super(employeeId, password, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
         this.employeeType = employeeType;
         this.employeeId = employeeId;
         this.displayName = displayName;

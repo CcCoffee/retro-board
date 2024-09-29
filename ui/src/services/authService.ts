@@ -1,21 +1,34 @@
 import { User } from "@/types/retro";
+import axiosInstance from "@/config/axiosConfig";
 
 export const authService = {
   login: async (username: string, password: string): Promise<User> => {
-    // 这里应该是实际的登录API调用
-    // 为了演示,我们直接返回一个模拟用户
-    console.log("password:", password)
-    return {
-      id: "0",
-      name: username,
-      avatar: "/placeholder.svg?height=32&width=32",
-      email: `${username}@example.com`,
-    };
+    try {
+      const data:URLSearchParams = new URLSearchParams();
+      data.append('username', username);
+      data.append('password', password);
+      const response = await axiosInstance.post('/login', data, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
+      const user: User = response.data;
+      authService.setCurrentUser(user);
+      return user;
+    } catch (error) {
+      console.error('登录失败:', error);
+      throw error;
+    }
   },
 
   logout: async (): Promise<void> => {
-    // 这里应该是实际的登出API调用
-    localStorage.removeItem("user");
+    try {
+      await axiosInstance.post('/logout');
+      localStorage.removeItem("user");
+    } catch (error) {
+      console.error('登出失败:', error);
+      throw error;
+    }
   },
 
   getCurrentUser: (): User | null => {
