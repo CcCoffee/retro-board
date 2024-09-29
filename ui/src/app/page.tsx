@@ -61,7 +61,12 @@ export default function RetroBoard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [cards, setCards] = useState<RetroCard[]>([])
-  const [newCard, setNewCard] = useState<Omit<RetroCard, 'id' | 'author' | 'likes'>>({ type: "good", content: "", isAnonymous: false })
+  const [newCard, setNewCard] = useState<Omit<RetroCard, 'id' | 'author' | 'likes'>>({
+    type: "good",
+    content: "",
+    isAnonymous: false,
+    createdAt: new Date().toISOString()
+  })
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [actionItems, setActionItems] = useState<ActionItem[]>([])
   const [newActionItem, setNewActionItem] = useState<Omit<ActionItem, 'id'>>({ assignee: "", dueDate: "", content: "" })
@@ -112,11 +117,13 @@ export default function RetroBoard() {
         ...newCard, 
         id: Date.now().toString(), 
         author: newCard.isAnonymous ? "Anonymous" : user.name, 
-        likes: [] 
+        likes: [], 
+        // 添加创建时间
+        createdAt: new Date().toISOString()
       }
       await retroService.saveCard(newCardData)
       setCards(await retroService.getCards())
-      setNewCard({ type: "good", content: "", isAnonymous: false })
+      setNewCard({ type: "good", content: "", isAnonymous: false, createdAt: new Date().toISOString() })
     }
   }
 
@@ -293,69 +300,74 @@ export default function RetroBoard() {
                     <h3 className="text-lg font-bold mb-2 font-heading">{column.title}</h3>
                     {cards.filter(card => card.type === column.id).map((card) => (
                       <Card key={card.id} className="mb-2 relative">
-                        <CardContent className="p-4">
-                          <div className="text-xs text-gray-400 text-center mb-2">
-                            — {card.author} —
-                          </div>
-                          <p>{card.content}</p>
-                        </CardContent>
-                        <div className="h-[40px] flex justify-between items-center px-4">
-                          <div className="flex items-center">
+                        <div className="px-2 pt-0">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleCardLike(card.id)}
+                                className={card.likes.includes(user?.id ?? "") ? "text-red-500" : ""}
+                              >
+                                <HeartIcon className="h-4 w-4" />
+                              </Button>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="flex -space-x-2 ml-2">
+                                      {card.likes.slice(0, 3).map((userId) => {
+                                        const likeUser = users.find(u => u.id === userId)
+                                        if (likeUser) {
+                                          return (
+                                            <Avatar key={userId} className="w-6 h-6 border-2 border-background">
+                                              <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
+                                              <AvatarFallback>{likeUser.name[0]}</AvatarFallback>
+                                            </Avatar>
+                                          )
+                                        }
+                                        return null
+                                      })}
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <div className="flex flex-col">
+                                      {card.likes.map(userId => {
+                                        const likeUser = users.find(u => u.id === userId)
+                                        if (likeUser) {
+                                          return (
+                                            <div key={userId} className="flex items-center mb-2">
+                                              <Avatar className="w-6 h-6 mr-2">
+                                                <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
+                                                <AvatarFallback className="text-black">{likeUser.name?.[0] ?? '?'}</AvatarFallback>
+                                              </Avatar>
+                                              <span>{likeUser.name}</span>
+                                            </div>
+                                          )
+                                        }
+                                        return null
+                                      })}
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleCardLike(card.id)}
-                              className={card.likes.includes(user?.id ?? "") ? "text-red-500" : ""}
+                              onClick={() => handleCardDelete(card.id)}
                             >
-                              <HeartIcon className="h-4 w-4" />
+                              <TrashIcon className="h-4 w-4" />
                             </Button>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex -space-x-2 ml-2">
-                                    {card.likes.slice(0, 3).map((userId) => {
-                                      const likeUser = users.find(u => u.id === userId)
-                                      if (likeUser) {
-                                        return (
-                                          <Avatar key={userId} className="w-6 h-6 border-2 border-background">
-                                            <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
-                                            <AvatarFallback>{likeUser.name[0]}</AvatarFallback>
-                                          </Avatar>
-                                        )
-                                      }
-                                      return null
-                                    })}
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <div className="flex flex-col">
-                                    {card.likes.map(userId => {
-                                      const likeUser = users.find(u => u.id === userId)
-                                      if (likeUser) {
-                                        return (
-                                          <div key={userId} className="flex items-center mb-2">
-                                            <Avatar className="w-6 h-6 mr-2">
-                                              <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
-                                              <AvatarFallback className="text-black">{likeUser.name?.[0] ?? '?'}</AvatarFallback>
-                                            </Avatar>
-                                            <span>{likeUser.name}</span>
-                                          </div>
-                                        )
-                                      }
-                                      return null
-                                    })}
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleCardDelete(card.id)}
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </Button>
+                        </div>
+                        <CardContent className="pl-4 pr-4 pt-0 pb-1">
+                          <p className="whitespace-pre-wrap break-words">{card.content}</p>
+                        </CardContent>
+                        <div className="px-4 pb-2">
+                          <div className="flex justify-between text-xs text-gray-400">
+                            <span>{card.author}</span>
+                            <span>{format(new Date(card.createdAt), "yyyy-MM-dd HH:mm")}</span>
+                          </div>
                         </div>
                       </Card>
                     ))}
@@ -416,7 +428,7 @@ export default function RetroBoard() {
                     <PopoverTrigger asChild>
                       <Button id="dueDate" variant="outline" className="w-full justify-start text-left font-normal">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {newActionItem.dueDate ? format(new Date(newActionItem.dueDate), "yyyy/MM/dd") : <span>Pick a date</span>}
+                        {newActionItem.dueDate ? format(new Date(newActionItem.dueDate), "yyyy-MM-dd") : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -470,7 +482,7 @@ export default function RetroBoard() {
                           </span>
                           <span className="text-xs text-muted-foreground">|</span>
                           <span className="text-xs text-muted-foreground truncate">
-                            {item.dueDate ? format(new Date(item.dueDate), "yyyy/MM/dd") : 'No due date'}
+                            {item.dueDate ? format(new Date(item.dueDate), "yyyy-MM-dd") : 'No due date'}
                           </span>
                         </div>
                         <div className="flex">

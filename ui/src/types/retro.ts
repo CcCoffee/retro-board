@@ -12,6 +12,8 @@ export interface RetroCard {
   isAnonymous: boolean;
   author: string;
   likes: string[];
+  // 添加发布时间字段
+  createdAt: string;
 }
 
 export interface ActionItem {
