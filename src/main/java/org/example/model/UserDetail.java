@@ -33,11 +33,7 @@ public class UserDetail implements Serializable {
     }
 
     public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
+        return "https://avatars.example.com/" + employeeId + ".png";
     }
 
     public String getDisplayName() {

@@ -52,10 +52,11 @@ const typesInfo = [
 ]
 
 const users: User[] = [
-  { id: "0", name: "Admin", avatar: "/placeholder.svg?height=32&width=32", email: "admin@example.com" },
-  { id: "1", name: "Alice", avatar: "/placeholder.svg?height=32&width=32", email: "alice@example.com" },
-  { id: "2", name: "Bob", avatar: "/placeholder.svg?height=32&width=32", email: "bob@example.com" },
-  { id: "3", name: "Charlie", avatar: "/placeholder.svg?height=32&width=32", email: "charlie@example.com" },
+  { id: "E001", name: "E001", avatar: "/E001.svg?height=32&width=32", email: "E001@example.com" },
+  { id: "E002", name: "E002", avatar: "/E002.svg?height=32&width=32", email: "E002@example.com" },
+  { id: "E003", name: "E003", avatar: "/E003.svg?height=32&width=32", email: "E003@example.com" },
+  { id: "E004", name: "E004", avatar: "/E004.svg?height=32&width=32", email: "E004@example.com" },
+  { id: "E005", name: "E005", avatar: "/E005.svg?height=32&width=32", email: "E005@example.com" },
 ]
 
 export default function RetroBoard() {
@@ -115,7 +116,7 @@ export default function RetroBoard() {
 
   // 计算 action items 的摘要信息
   const totalActionItems = actionItems.length
-  const overdueTasks = actionItems.filter(item => new Date(item.dueDate) < startOfDay(new Date())).length
+  const overdueTasks = actionItems.filter(item => !!item.dueDate).filter(item => new Date(item.dueDate) < startOfDay(new Date())).length
 
   const handleCardSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
@@ -382,6 +383,7 @@ export default function RetroBoard() {
                                       {
                                       card.likes.split(',').filter(id => id).map((userId) => {
                                         const likeUser = users.find(u => u.id === userId)
+                                        console.log(likeUser)
                                         if (likeUser) {
                                           return (
                                             <Avatar key={userId} className="w-6 h-6 border-2 border-background">

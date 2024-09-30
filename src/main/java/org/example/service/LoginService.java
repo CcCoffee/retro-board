@@ -2,12 +2,16 @@ package org.example.service;
 
 import org.example.dto.UserDTO;
 import org.example.model.UserDetail;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LoginService {
+
+    @Autowired
+    private UserService userService;
 
     public UserDTO getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -16,11 +20,12 @@ public class LoginService {
         } else if (principal instanceof User) {
             User user = (User) principal;
             // 根据 user.getUsername() 查询数据库获取用户名，头像和邮箱
+            UserDetail userDetail = userService.loadUserByEmployeeId(user.getUsername());
             return new UserDTO(
-                user.getUsername(),
-                user.getUsername(), // 使用用户名作为显示名称
-                null, // 没有头像
-                user.getUsername().toLowerCase().replaceAll("\\s", "-").concat("@example.com")  // 没有邮箱
+                userDetail.getEmployeeId(),
+                userDetail.getDisplayName(), // 使用用户名作为显示名称
+                userDetail.getAvatar(),
+                userDetail.getEmail()
             );
         }
         throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
