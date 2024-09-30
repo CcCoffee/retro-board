@@ -67,7 +67,7 @@ export default function RetroBoard() {
     type: "good",
     content: "",
     isAnonymous: false,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   })
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [actionItems, setActionItems] = useState<ActionItem[]>([])
@@ -123,9 +123,8 @@ export default function RetroBoard() {
       try {
         const newCardData: RetroCard = { 
           ...newCard, 
-          id: Date.now().toString(), 
           author: newCard.isAnonymous ? "Anonymous" : user.name, 
-          likes: [], 
+          likes: "", 
           createdAt: new Date().toISOString()
         }
         await retroService.saveCard(newCardData)
@@ -139,10 +138,10 @@ export default function RetroBoard() {
     }
   }
 
-  const handleCardDelete = async (cardId: string) => {
+  const handleCardDelete = async (cardId: number) => {
     try {
       const updatedCards = cards.filter(card => card.id !== cardId)
-      await retroService.updateCards(updatedCards)
+      await retroService.deleteCard(cardId)
       setCards(updatedCards)
       showToast.success("Card deleted successfully.")
     } catch (error) {
@@ -151,24 +150,29 @@ export default function RetroBoard() {
     }
   }
 
-  const handleCardLike = async (cardId: string) => {
+  const handleCardLike = async (cardId: number) => {
     if (!user) return
     try {
       const updatedCards = cards.map(card => {
         if (card.id === cardId) {
-          const likes = card.likes.includes(user.id)
-            ? card.likes.filter(id => id !== user.id)
-            : [...card.likes, user.id]
-          return { ...card, likes }
+          const likesArray = card.likes ? card.likes.split(',') : []
+          const newLikesArray = likesArray.includes(user.id)
+            ? likesArray.filter(id => id !== user.id)
+            : [...likesArray, user.id]
+          return { ...card, likes: newLikesArray.join(',') }
         }
         return card
       })
-      await retroService.updateCards(updatedCards)
+      const updatedCard = updatedCards.find(card => card.id === cardId)
+      if (!updatedCard) {
+        throw new Error("无法找到要更新的卡片")
+      }
+      await retroService.updateCard(updatedCard)
       setCards(updatedCards)
-      showToast.success("Like status updated.")
+      showToast.success("点赞状态已更新。")
     } catch (error) {
-      console.error("Failed to update like status:", error)
-      showToast.error("Failed to update like status. Please try again.")
+      console.error("更新点赞状态失败:", error)
+      showToast.error("更新点赞状态失败。请重试。")
     }
   }
 
@@ -176,17 +180,18 @@ export default function RetroBoard() {
     e?.preventDefault()
     if (isActionItemSubmitEnabled) {
       try {
-        let updatedActionItems: ActionItem[]
         if (editingActionItem) {
-          updatedActionItems = actionItems.map(item =>
-            item.id === editingActionItem.id ? { ...newActionItem, id: item.id } : item
+          const updatedActionItem = actionItems.find(item =>
+            item.id === editingActionItem.id
           )
+          if (!updatedActionItem) {
+            throw new Error("无法找到要更新的 Action Item")
+          }
+          await retroService.updateActionItem(updatedActionItem)
         } else {
-          const newItem = { ...newActionItem, id: Date.now().toString() }
-          updatedActionItems = [...actionItems, newItem]
-          await retroService.saveActionItem(newItem)
+          await retroService.saveActionItem(newActionItem)
         }
-        await retroService.updateActionItems(updatedActionItems)
+        const updatedActionItems = await retroService.getActionItems()
         setActionItems(updatedActionItems)
         setNewActionItem({ assignee: "", dueDate: "", content: "" })
         setEditingActionItem(null)
@@ -198,10 +203,10 @@ export default function RetroBoard() {
     }
   }
 
-  const handleActionItemDelete = async (itemId: string) => {
+  const handleActionItemDelete = async (itemId: number) => {
     try {
+      await retroService.deleteActionItem(itemId)
       const updatedActionItems = actionItems.filter(item => item.id !== itemId)
-      await retroService.updateActionItems(updatedActionItems)
       setActionItems(updatedActionItems)
       showToast.success("Action item deleted successfully.")
     } catch (error) {
@@ -365,8 +370,8 @@ export default function RetroBoard() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleCardLike(card.id)}
-                                className={card.likes.includes(user?.id ?? "") ? "text-red-500" : ""}
+                                onClick={() => handleCardLike(card.id!)}
+                                className={card.likes.split(',').includes(user?.id ?? "") ? "text-red-500" : ""}
                               >
                                 <HeartIcon className="h-4 w-4" />
                               </Button>
@@ -374,7 +379,8 @@ export default function RetroBoard() {
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <div className="flex -space-x-2 ml-2">
-                                      {card.likes.slice(0, 3).map((userId) => {
+                                      {
+                                      card.likes.split(',').filter(id => id).map((userId) => {
                                         const likeUser = users.find(u => u.id === userId)
                                         if (likeUser) {
                                           return (
@@ -390,7 +396,7 @@ export default function RetroBoard() {
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <div className="flex flex-col">
-                                      {card.likes.map(userId => {
+                                      {card.likes.split(',').filter(id => id).map(userId => {
                                         const likeUser = users.find(u => u.id === userId)
                                         if (likeUser) {
                                           return (
@@ -413,7 +419,7 @@ export default function RetroBoard() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleCardDelete(card.id)}
+                              onClick={() => handleCardDelete(card.id!)}
                             >
                               <TrashIcon className="h-4 w-4" />
                             </Button>
@@ -548,7 +554,7 @@ export default function RetroBoard() {
                           <Button variant="ghost" size="icon" onClick={() => handleActionItemEdit(item)}>
                             <PencilIcon className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleActionItemDelete(item.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleActionItemDelete(item.id!)}>
                             <TrashIcon className="h-4 w-4" />
                           </Button>
                         </div>

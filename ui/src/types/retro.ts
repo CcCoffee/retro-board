@@ -6,18 +6,17 @@ export interface User {
 }
 
 export interface RetroCard {
-  id: string;
+  id?: number;
   type: string;
   content: string;
   isAnonymous: boolean;
   author: string;
-  likes: string[];
-  // 添加发布时间字段
+  likes: string;
   createdAt: string;
 }
 
 export interface ActionItem {
-  id: string;
+  id?: number;
   assignee: string;
   dueDate: string;
   content: string;
