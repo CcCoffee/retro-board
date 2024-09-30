@@ -10,6 +10,10 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  
+  [data-radix-scroll-area-viewport] > div {
+    height: 100% !important;
+  }
 }
 
 @layer base {
@@ -76,3 +80,4 @@ body {
     @apply bg-background text-foreground;
   }
 }
+

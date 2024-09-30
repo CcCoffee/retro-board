@@ -295,7 +295,7 @@ export default function RetroBoard() {
           </div>
           <div className="flex flex-1 overflow-hidden">
             <ScrollArea className="flex-1 mr-4">
-              <div className="grid grid-cols-4 gap-4 h-full pr-4">
+              <div className="grid grid-cols-4 gap-4 h-full">
                 {typesInfo.map((column, index) => (
                   <div key={column.id} className={`${column.color} p-4 rounded-lg overflow-auto ${index === 0 ? 'ml-4' : ''}`}>
                     <h3 className="text-lg font-bold mb-2 font-heading">{column.title}</h3>
@@ -377,9 +377,9 @@ export default function RetroBoard() {
               </div>
             </ScrollArea>
             {isSidebarOpen && (
-              <ScrollArea className="w-[300px] pl-1 pr-4">
+              <ScrollArea className="w-[300px] pr-4">
                 <h3 className="text-lg font-bold mb-2 font-heading">Action Items</h3>
-                <div className="mb-4">
+                <div className="mb-4 px-1">
                   <Label htmlFor="assignee">Assignee</Label>
                   <Popover open={openAssignee} onOpenChange={setOpenAssignee}>
                     <PopoverTrigger asChild>
