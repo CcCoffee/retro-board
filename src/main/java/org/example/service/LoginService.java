@@ -20,7 +20,7 @@ public class LoginService {
                 user.getUsername(),
                 user.getUsername(), // 使用用户名作为显示名称
                 null, // 没有头像
-                null  // 没有邮箱
+                user.getUsername().toLowerCase().replaceAll("\\s", "-").concat("@example.com")  // 没有邮箱
             );
         }
         throw new IllegalStateException("Unexpected principal type: " + principal.getClass());

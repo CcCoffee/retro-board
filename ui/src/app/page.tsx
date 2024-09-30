@@ -103,6 +103,7 @@ export default function RetroBoard() {
       const loadedActionItems = await retroService.getActionItems()
       setActionItems(loadedActionItems)
     } catch (error) {
+      console.error("Failed to load data:", error)
       showToast.error("Failed to load data. Please try again later.")
     }
   }
@@ -132,6 +133,7 @@ export default function RetroBoard() {
         setNewCard({ type: "good", content: "", isAnonymous: false, createdAt: new Date().toISOString() })
         showToast.success("Card added successfully.")
       } catch (error) {
+        console.error("Failed to add card:", error)
         showToast.error("Failed to add card. Please try again.")
       }
     }
@@ -144,6 +146,7 @@ export default function RetroBoard() {
       setCards(updatedCards)
       showToast.success("Card deleted successfully.")
     } catch (error) {
+      console.error("Failed to delete card:", error)
       showToast.error("Failed to delete card. Please try again.")
     }
   }
@@ -164,6 +167,7 @@ export default function RetroBoard() {
       setCards(updatedCards)
       showToast.success("Like status updated.")
     } catch (error) {
+      console.error("Failed to update like status:", error)
       showToast.error("Failed to update like status. Please try again.")
     }
   }
@@ -188,6 +192,7 @@ export default function RetroBoard() {
         setEditingActionItem(null)
         showToast.success(editingActionItem ? "Action item updated." : "New action item added.")
       } catch (error) {
+        console.error(editingActionItem ? "Failed to update action item:" : "Failed to add action item:", error)
         showToast.error(editingActionItem ? "Failed to update action item. Please try again." : "Failed to add action item. Please try again.")
       }
     }
@@ -200,6 +205,7 @@ export default function RetroBoard() {
       setActionItems(updatedActionItems)
       showToast.success("Action item deleted successfully.")
     } catch (error) {
+      console.error("Failed to delete action item:", error)
       showToast.error("Failed to delete action item. Please try again.")
     }
   }
@@ -217,6 +223,7 @@ export default function RetroBoard() {
       router.push("/login")
       showToast.success("You have been successfully logged out.")
     } catch (error) {
+      console.error("Logout failed:", error)
       showToast.error("Logout failed. Please try again.")
     }
   }

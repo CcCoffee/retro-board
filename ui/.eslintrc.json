@@ -5,7 +5,7 @@
   },
   "overrides": [
     {
-      "files": ["src/components/ui/**/*.tsx", "src/components/ui/**/*.ts"],
+      "files": ["src/components/ui/**/*.tsx", "src/components/ui/**/*.ts", "src/hooks/*.ts"],
       "rules": {
         "@typescript-eslint/no-unused-vars": "off",
         "@typescript-eslint/no-empty-object-type": "off"
