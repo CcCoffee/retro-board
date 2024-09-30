@@ -42,6 +42,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
 import { User, RetroCard, ActionItem } from "@/types/retro"
+import { showToast } from "@/utils/toast"
 
 const typesInfo = [
   { id: "good", title: "Good", color: "bg-green-100", indicatorColor: "bg-green-300" },
@@ -95,11 +96,15 @@ export default function RetroBoard() {
   }, [router])
 
   const loadData = async () => {
-    const loadedCards = await retroService.getCards()
-    setCards(loadedCards)
+    try {
+      const loadedCards = await retroService.getCards()
+      setCards(loadedCards)
 
-    const loadedActionItems = await retroService.getActionItems()
-    setActionItems(loadedActionItems)
+      const loadedActionItems = await retroService.getActionItems()
+      setActionItems(loadedActionItems)
+    } catch (error) {
+      showToast.error("Failed to load data. Please try again later.")
+    }
   }
 
   const isActionItemValid = newActionItem.assignee && newActionItem.content.trim() !== ""
@@ -114,65 +119,89 @@ export default function RetroBoard() {
   const handleCardSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
     if (isSubmitEnabled && user) {
-      const newCardData: RetroCard = { 
-        ...newCard, 
-        id: Date.now().toString(), 
-        author: newCard.isAnonymous ? "Anonymous" : user.name, 
-        likes: [], 
-        // 添加创建时间
-        createdAt: new Date().toISOString()
+      try {
+        const newCardData: RetroCard = { 
+          ...newCard, 
+          id: Date.now().toString(), 
+          author: newCard.isAnonymous ? "Anonymous" : user.name, 
+          likes: [], 
+          createdAt: new Date().toISOString()
+        }
+        await retroService.saveCard(newCardData)
+        setCards(await retroService.getCards())
+        setNewCard({ type: "good", content: "", isAnonymous: false, createdAt: new Date().toISOString() })
+        showToast.success("Card added successfully.")
+      } catch (error) {
+        showToast.error("Failed to add card. Please try again.")
       }
-      await retroService.saveCard(newCardData)
-      setCards(await retroService.getCards())
-      setNewCard({ type: "good", content: "", isAnonymous: false, createdAt: new Date().toISOString() })
     }
   }
 
   const handleCardDelete = async (cardId: string) => {
-    const updatedCards = cards.filter(card => card.id !== cardId)
-    await retroService.updateCards(updatedCards)
-    setCards(updatedCards)
+    try {
+      const updatedCards = cards.filter(card => card.id !== cardId)
+      await retroService.updateCards(updatedCards)
+      setCards(updatedCards)
+      showToast.success("Card deleted successfully.")
+    } catch (error) {
+      showToast.error("Failed to delete card. Please try again.")
+    }
   }
 
   const handleCardLike = async (cardId: string) => {
     if (!user) return
-    const updatedCards = cards.map(card => {
-      if (card.id === cardId) {
-        const likes = card.likes.includes(user.id)
-          ? card.likes.filter(id => id !== user.id)
-          : [...card.likes, user.id]
-        return { ...card, likes }
-      }
-      return card
-    })
-    await retroService.updateCards(updatedCards)
-    setCards(updatedCards)
+    try {
+      const updatedCards = cards.map(card => {
+        if (card.id === cardId) {
+          const likes = card.likes.includes(user.id)
+            ? card.likes.filter(id => id !== user.id)
+            : [...card.likes, user.id]
+          return { ...card, likes }
+        }
+        return card
+      })
+      await retroService.updateCards(updatedCards)
+      setCards(updatedCards)
+      showToast.success("Like status updated.")
+    } catch (error) {
+      showToast.error("Failed to update like status. Please try again.")
+    }
   }
 
   const handleActionItemSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
     if (isActionItemSubmitEnabled) {
-      let updatedActionItems: ActionItem[]
-      if (editingActionItem) {
-        updatedActionItems = actionItems.map(item =>
-          item.id === editingActionItem.id ? { ...newActionItem, id: item.id } : item
-        )
-      } else {
-        const newItem = { ...newActionItem, id: Date.now().toString() }
-        updatedActionItems = [...actionItems, newItem]
-        await retroService.saveActionItem(newItem)
+      try {
+        let updatedActionItems: ActionItem[]
+        if (editingActionItem) {
+          updatedActionItems = actionItems.map(item =>
+            item.id === editingActionItem.id ? { ...newActionItem, id: item.id } : item
+          )
+        } else {
+          const newItem = { ...newActionItem, id: Date.now().toString() }
+          updatedActionItems = [...actionItems, newItem]
+          await retroService.saveActionItem(newItem)
+        }
+        await retroService.updateActionItems(updatedActionItems)
+        setActionItems(updatedActionItems)
+        setNewActionItem({ assignee: "", dueDate: "", content: "" })
+        setEditingActionItem(null)
+        showToast.success(editingActionItem ? "Action item updated." : "New action item added.")
+      } catch (error) {
+        showToast.error(editingActionItem ? "Failed to update action item. Please try again." : "Failed to add action item. Please try again.")
       }
-      await retroService.updateActionItems(updatedActionItems)
-      setActionItems(updatedActionItems)
-      setNewActionItem({ assignee: "", dueDate: "", content: "" })
-      setEditingActionItem(null)
     }
   }
 
   const handleActionItemDelete = async (itemId: string) => {
-    const updatedActionItems = actionItems.filter(item => item.id !== itemId)
-    await retroService.updateActionItems(updatedActionItems)
-    setActionItems(updatedActionItems)
+    try {
+      const updatedActionItems = actionItems.filter(item => item.id !== itemId)
+      await retroService.updateActionItems(updatedActionItems)
+      setActionItems(updatedActionItems)
+      showToast.success("Action item deleted successfully.")
+    } catch (error) {
+      showToast.error("Failed to delete action item. Please try again.")
+    }
   }
 
   const handleActionItemEdit = (item: ActionItem) => {
@@ -181,10 +210,15 @@ export default function RetroBoard() {
   }
 
   const handleLogout = async () => {
-    await authService.logout()
-    setIsLoggedIn(false)
-    setUser(null)
-    router.push("/login") // 登出后重定向到登录页面
+    try {
+      await authService.logout()
+      setIsLoggedIn(false)
+      setUser(null)
+      router.push("/login")
+      showToast.success("You have been successfully logged out.")
+    } catch (error) {
+      showToast.error("Logout failed. Please try again.")
+    }
   }
 
   const handleCardKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
