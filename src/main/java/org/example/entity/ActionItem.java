@@ -8,17 +8,17 @@ import java.time.LocalDate;
 
 @TableName("action_item")
 public class ActionItem {
-    @TableId(type = IdType.ASSIGN_ID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     private String assignee;
     private LocalDate dueDate;
     private String content;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

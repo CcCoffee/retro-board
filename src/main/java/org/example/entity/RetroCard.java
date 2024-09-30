@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 
 @TableName("retro_card")
 public class RetroCard {
-    @TableId(type = IdType.ASSIGN_ID)
-    private String id;
+    @TableId(type = IdType.AUTO)
+    private Long id;
     private String type;
     private String content;
     private Boolean isAnonymous;
@@ -17,11 +17,11 @@ public class RetroCard {
     private String likes;
     private LocalDateTime createdAt;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

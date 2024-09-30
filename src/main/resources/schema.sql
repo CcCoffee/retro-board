@@ -1,16 +1,19 @@
-CREATE TABLE IF NOT EXISTS retro_card (
-    id VARCHAR(32) PRIMARY KEY,
-    type VARCHAR(50) NOT NULL,
-    content TEXT NOT NULL,
-    is_anonymous BOOLEAN NOT NULL,
-    author VARCHAR(100) NOT NULL,
-    likes VARCHAR(1000),
-    created_at TIMESTAMP NOT NULL
+DROP TABLE IF EXISTS retro_card;
+DROP TABLE IF EXISTS action_item;
+
+CREATE TABLE retro_card (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    type VARCHAR(255),
+    content TEXT,
+    is_anonymous BOOLEAN,
+    author VARCHAR(255),
+    likes VARCHAR(255),
+    created_at TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS action_item (
-    id VARCHAR(32) PRIMARY KEY,
-    assignee VARCHAR(100) NOT NULL,
-    due_date DATE NOT NULL,
-    content TEXT NOT NULL
+CREATE TABLE action_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    assignee VARCHAR(255),
+    due_date DATE,
+    content TEXT
 );

@@ -54,7 +54,12 @@ public class SecurityConfig {
             .logout((logout) -> logout
                 .logoutUrl("/api/logout")
                 .logoutSuccessUrl("/logoutSuccess")
-                .permitAll());
+                .permitAll())
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions
+                    .sameOrigin()
+                )
+            );
 
         return http.build();
     }

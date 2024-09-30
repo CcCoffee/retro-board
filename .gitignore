@@ -73,3 +73,5 @@ ui/next-env.d.ts
 
 ### Mac OS ###
 .DS_Store
+
+**/*.db
