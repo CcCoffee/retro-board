@@ -1,5 +1,6 @@
 import { User } from "@/types/retro";
 import axiosInstance from "@/config/axiosConfig";
+import { showToast } from "@/utils/toast";
 
 export const authService = {
   login: async (username: string, password: string): Promise<User> => {
@@ -14,9 +15,11 @@ export const authService = {
       });
       const user: User = response.data;
       authService.setCurrentUser(user);
+      showToast.success("Login successful");
       return user;
     } catch (error) {
-      console.error('登录失败:', error);
+      console.error('Login failed:', error);
+      showToast.error("Login failed, please check your username and password");
       throw error;
     }
   },
@@ -25,8 +28,10 @@ export const authService = {
     try {
       await axiosInstance.post('/logout');
       localStorage.removeItem("user");
+      showToast.info("You have successfully logged out");
     } catch (error) {
-      console.error('登出失败:', error);
+      console.error('Logout failed:', error);
+      showToast.error("Logout failed, please try again later");
       throw error;
     }
   },
