@@ -264,7 +264,7 @@ export default function RetroBoard() {
     <div className="min-h-screen bg-background flex flex-col">
       {isLoggedIn && (
         <div className="flex flex-col h-screen">
-          <div className="relative flex justify-between items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 overflow-hidden">
+          <div className="relative flex justify-between items-center px-4 py-2 bg-gradient-to-r from-pink-400 to-purple-400 overflow-hidden">
             <div className="absolute inset-0 opacity-10">
               <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                 <defs>
