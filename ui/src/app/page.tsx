@@ -13,7 +13,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PencilIcon, TrashIcon } from "lucide-react"
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PencilIcon, TrashIcon, Sparkles } from "lucide-react"
 import { format, isBefore, startOfDay } from "date-fns"
 import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
@@ -264,39 +264,46 @@ export default function RetroBoard() {
     <div className="min-h-screen bg-background flex flex-col">
       {isLoggedIn && (
         <div className="flex flex-col h-screen">
-          <div className="flex justify-between items-center p-4">
-            <h1 className="text-2xl font-bold font-heading">Retro Board</h1>
-            <div className="flex items-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.avatar} alt={user?.name} />
-                      <AvatarFallback>{user?.name?.[0] ?? '?'}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user?.name}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.email ?? 'No email'}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button variant="outline" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="ml-2">
+          <div className="flex justify-between items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="h-8 w-8 text-white" />
+              <h1 className="text-2xl font-bold font-heading text-white">Retro Board</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-white">Hello, {user?.name}</span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user?.avatar} alt={user?.name} />
+                        <AvatarFallback>{user?.name?.[0] ?? '?'}</AvatarFallback>
+                      </Avatar>
+                      <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-green-500 border-2 border-white"></span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user?.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user?.email ?? 'No email'}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <Button variant="outline" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="bg-white text-purple-500">
                 {isSidebarOpen ? <ChevronRightIcon /> : <ChevronLeftIcon />}
               </Button>
             </div>
           </div>
-          <div className="flex justify-end pt-0 px-4 pb-4 gap-2">
+          <div className="flex justify-end p-4 gap-2">
             <Select value={newCard.type} onValueChange={(value) => setNewCard({ ...newCard, type: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select type" />
