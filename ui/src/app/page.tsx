@@ -13,7 +13,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PencilIcon, TrashIcon, Sparkles } from "lucide-react"
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PencilIcon, TrashIcon } from "lucide-react"
 import { format, isBefore, startOfDay } from "date-fns"
 import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
@@ -38,6 +38,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Loader2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import Image from 'next/image'
 
 import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
@@ -289,7 +290,13 @@ export default function RetroBoard() {
               </svg>
             </div>
             <div className="flex items-center space-x-2 relative z-10">
-              <Sparkles className="h-8 w-8 text-white" />
+              <Image
+                src="/favicon.svg"
+                alt="Retro Board Logo"
+                width={32}
+                height={32}
+                className="text-white"
+              />
               <h1 className="text-2xl font-bold font-heading text-white">Retro Board</h1>
             </div>
             <div className="flex items-center space-x-4 relative z-10">

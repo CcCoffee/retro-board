@@ -17,9 +17,10 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Retro Board",
   description: "A retrospective board application",
-  icons: {
-    icon: './favicon.ico',
-  },
+  icons: [
+    { rel: "icon", url: "/favicon-16.svg", sizes: "16x16", type: "image/svg+xml" },
+    { rel: "icon", url: "/favicon.svg", sizes: "32x32 48x48 64x64", type: "image/svg+xml" },
+  ],
 };
 
 export default function RootLayout({
