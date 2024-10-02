@@ -41,4 +41,9 @@ public class RetroCardController {
     public void delete(@PathVariable Long id) {
         retroCardService.removeById(id);
     }
+
+    @DeleteMapping("/clear")
+    public void clearBoard() {
+        retroCardService.clearAll();
+    }
 }

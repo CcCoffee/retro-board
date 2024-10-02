@@ -39,6 +39,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Loader2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Image from 'next/image'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
@@ -256,6 +257,17 @@ export default function RetroBoard() {
     }
   }
 
+  const handleClearBoard = async () => {
+    try {
+      await retroService.clearBoard()
+      setCards([])
+      showToast.success("Retro board cleared successfully.")
+    } catch (error) {
+      console.error("Failed to clear board:", error)
+      showToast.error("Failed to clear board. Please try again.")
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
@@ -334,6 +346,24 @@ export default function RetroBoard() {
             </div>
           </div>
           <div className="flex justify-end p-4 gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">Clear Board</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete all retro cards from the board.
+                    Action items will not be affected.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleClearBoard}>Clear Board</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <Select value={newCard.type} onValueChange={(value) => setNewCard({ ...newCard, type: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select type" />
@@ -390,7 +420,6 @@ export default function RetroBoard() {
                                       {
                                       card.likes.split(',').filter(id => id).map((userId) => {
                                         const likeUser = users.find(u => u.id === userId)
-                                        console.log(likeUser)
                                         if (likeUser) {
                                           return (
                                             <Avatar key={userId} className="w-6 h-6 border-2 border-background">

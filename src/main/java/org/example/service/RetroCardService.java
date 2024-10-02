@@ -2,6 +2,10 @@ package org.example.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.example.entity.RetroCard;
+import org.springframework.stereotype.Service;
 
-public interface RetroCardService extends IService<RetroCard> {
+@Service
+public interface RetroCardService extends IService<RetroCard>  {
+
+    void clearAll();
 }
