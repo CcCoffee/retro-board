@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS retro_board_history;
 DROP TABLE IF EXISTS retro_card;
 DROP TABLE IF EXISTS action_item;
 
@@ -17,4 +18,11 @@ CREATE TABLE action_item (
     due_date DATE,
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE retro_board_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cards_json TEXT,
+    deleted_by VARCHAR(255),
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

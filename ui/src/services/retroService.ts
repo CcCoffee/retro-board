@@ -97,11 +97,11 @@ export const retroService = {
 
   clearBoard: async (): Promise<void> => {
     try {
-      await axiosInstance.delete(`/retro-cards/clear`);
-      showToast.success("Retro board cleared successfully");
+      await axiosInstance.post('/retro-cards/clear');
+      showToast.success("Retro board cleaned successfully");
     } catch (error) {
-      console.error('Failed to clear retro board:', error);
-      showToast.error("Failed to clear retro board");
+      console.error('Failed to clean retro board:', error);
+      showToast.error("Failed to clean retro board");
       throw error;
     }
   },

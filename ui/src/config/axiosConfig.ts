@@ -8,6 +8,8 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // 添加这一行来确保发送凭证
+  withCredentials: true,
 });
 
 export default axiosInstance;

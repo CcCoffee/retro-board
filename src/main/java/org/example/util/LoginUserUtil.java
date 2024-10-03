@@ -1,14 +1,15 @@
-package org.example.service;
+package org.example.util;
 
 import org.example.dto.UserDTO;
 import org.example.model.UserDetail;
+import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LoginService {
+public class LoginUserUtil {
 
     @Autowired
     private UserService userService;

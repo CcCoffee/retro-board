@@ -1,8 +1,13 @@
 package org.example.controller;
 
+import org.example.dto.UserDTO;
 import org.example.entity.RetroCard;
+import org.example.service.RetroBoardHistoryService;
 import org.example.service.RetroCardService;
+import org.example.util.LoginUserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +18,8 @@ public class RetroCardController {
 
     @Autowired
     private RetroCardService retroCardService;
+    @Autowired
+    private LoginUserUtil loginUserUtil;
 
     @PostMapping
     public RetroCard create(@RequestBody RetroCard retroCard) {
@@ -42,8 +49,10 @@ public class RetroCardController {
         retroCardService.removeById(id);
     }
 
-    @DeleteMapping("/clear")
-    public void clearBoard() {
-        retroCardService.clearAll();
+    @PostMapping("/clear")
+    public ResponseEntity<Void> clearBoard() {
+        UserDTO currentUser = loginUserUtil.getCurrentUser();
+        retroCardService.clearBoard(currentUser.getName());
+        return ResponseEntity.ok().build();
     }
 }

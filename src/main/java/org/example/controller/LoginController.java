@@ -1,10 +1,9 @@
 package org.example.controller;
 
 import org.example.dto.UserDTO;
-import org.example.service.LoginService;
+import org.example.util.LoginUserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,17 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
 
     @Autowired
-    private LoginService loginService;
+    private LoginUserUtil loginUserUtil;
 
     @RequestMapping("/loginSuccess")
     public UserDTO loginSuccess() {
         // 获取当前登录用户的 UserDetail
-        return loginService.getCurrentUser();
+        return loginUserUtil.getCurrentUser();
     }
 
     @RequestMapping("/logoutSuccess")
     public ResponseEntity<String> logoutSuccess() {
-        loginService.logout();
+        loginUserUtil.logout();
         return ResponseEntity.ok("Logout successful");
     }
 
