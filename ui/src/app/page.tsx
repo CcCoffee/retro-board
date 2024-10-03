@@ -40,6 +40,7 @@ import { Loader2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Image from 'next/image'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { Separator } from "@/components/ui/separator"
 
 import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
@@ -345,7 +346,7 @@ export default function RetroBoard() {
               </Button>
             </div>
           </div>
-          <div className="flex justify-end p-4 gap-2">
+          <div className="flex justify-end p-4 gap-2 items-center">
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive">Clear Board</Button>
@@ -364,6 +365,9 @@ export default function RetroBoard() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+            
+            <Separator orientation="vertical" className="h-8 mx-2" />
+            
             <Select value={newCard.type} onValueChange={(value) => setNewCard({ ...newCard, type: value })}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select type" />
@@ -377,6 +381,7 @@ export default function RetroBoard() {
                 ))}
               </SelectContent>
             </Select>
+            
             <Input
               placeholder="Enter your opinion"
               value={newCard.content}
