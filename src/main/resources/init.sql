@@ -13,6 +13,6 @@ VALUES
 ('E003', '2023-05-18', '更新项目文档');
 
 -- Test data for retro_board_history
-INSERT INTO retro_board_history (cards_json, deleted_by) VALUES 
-('[{"id":1,"type":"GOOD","content":"Great teamwork","isAnonymous":false,"author":"John","likes":"2","createdAt":"2023-04-01 10:00:00"},{"id":2,"type":"BAD","content":"Communication issues","isAnonymous":true,"author":"Anonymous","likes":"1","createdAt":"2023-04-01 11:00:00"}]', 'admin'),
-('[{"id":3,"type":"ACTION","content":"Improve documentation","isAnonymous":false,"author":"Alice","likes":"3","createdAt":"2023-04-02 09:00:00"}]', 'manager');
+INSERT INTO retro_board_history (cards_json, deleted_by, deleted_at) VALUES 
+('[{"id":1,"type":"GOOD","content":"Great teamwork","isAnonymous":false,"author":"John","likes":"2","createdAt":"2023-04-01 10:00:00"},{"id":2,"type":"BAD","content":"Communication issues","isAnonymous":true,"author":"Anonymous","likes":"1","createdAt":"2023-04-01 11:00:00"}]', 'admin', '2023-05-01 14:30:00'),
+('[{"id":3,"type":"ACTION","content":"Improve documentation","isAnonymous":false,"author":"Alice","likes":"3","createdAt":"2023-04-02 09:00:00"}]', 'manager', '2023-05-02 16:45:00');

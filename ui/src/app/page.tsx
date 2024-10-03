@@ -294,7 +294,7 @@ export default function RetroBoard() {
   const loadHistoryById = async (id: number) => {
     try {
       const history = await retroService.getHistoryById(id)
-      setCards(history.cards)
+      setCards(history.cards || []) // Ensure cards is always an array
       setCurrentHistoryDate(format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm"))
       setIsHistoryMode(true)
     } catch (error) {
@@ -306,7 +306,7 @@ export default function RetroBoard() {
   const exitHistoryMode = () => {
     setIsHistoryMode(false)
     setCurrentHistoryDate(null)
-    loadData()
+    loadData() // This should reset the cards to the current state
   }
 
   if (isLoading) {
@@ -493,7 +493,7 @@ export default function RetroBoard() {
                 {typesInfo.map((column, index) => (
                   <div key={column.id} className={`${column.color} p-4 rounded-lg overflow-auto ${index === 0 ? 'ml-4' : ''}`}>
                     <h3 className="text-lg font-bold mb-2 font-heading">{column.title}</h3>
-                    {cards.filter(card => card.type === column.id).map((card) => (
+                    {(cards || []).filter(card => card.type === column.id).map((card) => (
                       <Card key={card.id} className="mb-2 relative">
                         <div className="px-2 pt-0">
                           <div className="flex justify-between items-center">
