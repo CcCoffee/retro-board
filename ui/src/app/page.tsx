@@ -433,9 +433,11 @@ export default function RetroBoard() {
             </div>
           </div>
           <div className="flex justify-between p-4 gap-2 items-center">
-            <h1 className="text-2xl font-bold font-heading">
-              {isHistoryMode ? `Retro Board History - ${currentHistoryDate}` : "Retro Board"}
-            </h1>
+            {isHistoryMode && (
+              <h1 className="text-2xl font-bold font-heading">
+                Retro Board History - {currentHistoryDate}
+              </h1>
+            )}
             {isHistoryMode ? (
               <Button onClick={exitHistoryMode}>Exit History Mode</Button>
             ) : (
