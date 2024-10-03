@@ -91,6 +91,8 @@ export default function RetroBoard() {
   const [histories, setHistories] = useState<RetroBoardHistory[]>([])
   const [isHistoryMode, setIsHistoryMode] = useState(false)
   const [currentHistoryDate, setCurrentHistoryDate] = useState<string | null>(null)
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
 
   useEffect(() => {
     const checkLoginStatus = () => {
@@ -285,6 +287,7 @@ export default function RetroBoard() {
     try {
       const loadedHistories = await retroService.getAllHistory()
       setHistories(loadedHistories)
+      setIsHistoryDialogOpen(true) // Open the dialog after loading histories
     } catch (error) {
       console.error("Failed to load histories:", error)
       showToast.error("Failed to load histories. Please try again later.")
@@ -292,14 +295,18 @@ export default function RetroBoard() {
   }
 
   const loadHistoryById = async (id: number) => {
+    setIsLoadingHistory(true);
     try {
       const history = await retroService.getHistoryById(id)
-      setCards(history.cards || []) // Ensure cards is always an array
+      setCards(history.cards || [])
       setCurrentHistoryDate(format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm"))
       setIsHistoryMode(true)
+      setIsHistoryDialogOpen(false) // Close the dialog after loading history
     } catch (error) {
       console.error("Failed to load history:", error)
       showToast.error("Failed to load history. Please try again later.")
+    } finally {
+      setIsLoadingHistory(false)
     }
   }
 
@@ -353,7 +360,7 @@ export default function RetroBoard() {
               <h1 className="text-2xl font-bold font-heading text-white">Retro Board</h1>
             </div>
             <div className="flex items-center space-x-4 relative z-10">
-              <Dialog>
+              <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-white" onClick={loadHistories}>
                     <HistoryIcon className="h-5 w-5" />
@@ -489,90 +496,96 @@ export default function RetroBoard() {
           </div>
           <div className="flex flex-1 overflow-hidden">
             <ScrollArea className="flex-1 mr-4">
-              <div className="grid grid-cols-4 gap-4 h-full">
-                {typesInfo.map((column, index) => (
-                  <div key={column.id} className={`${column.color} p-4 rounded-lg overflow-auto ${index === 0 ? 'ml-4' : ''}`}>
-                    <h3 className="text-lg font-bold mb-2 font-heading">{column.title}</h3>
-                    {(cards || []).filter(card => card.type === column.id).map((card) => (
-                      <Card key={card.id} className="mb-2 relative">
-                        <div className="px-2 pt-0">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleCardLike(card.id!)}
-                                className={card.likes.split(',').includes(user?.id ?? "") ? "text-red-500" : ""}
-                                disabled={isHistoryMode}
-                              >
-                                <HeartIcon className="h-4 w-4" />
-                              </Button>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="flex -space-x-2 ml-2">
-                                      {
-                                      card.likes.split(',').filter(id => id).map((userId) => {
-                                        const likeUser = users.find(u => u.id === userId)
-                                        if (likeUser) {
-                                          return (
-                                            <Avatar key={userId} className="w-6 h-6 border-2 border-background">
-                                              <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
-                                              <AvatarFallback>{likeUser.name[0]}</AvatarFallback>
-                                            </Avatar>
-                                          )
-                                        }
-                                        return null
-                                      })}
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <div className="flex flex-col">
-                                      {card.likes.split(',').filter(id => id).map(userId => {
-                                        const likeUser = users.find(u => u.id === userId)
-                                        if (likeUser) {
-                                          return (
-                                            <div key={userId} className="flex items-center mb-2">
-                                              <Avatar className="w-6 h-6 mr-2">
+              {isLoadingHistory ? (
+                <div className="flex justify-center items-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 gap-4 h-full">
+                  {typesInfo.map((column, index) => (
+                    <div key={column.id} className={`${column.color} p-4 rounded-lg overflow-auto ${index === 0 ? 'ml-4' : ''}`}>
+                      <h3 className="text-lg font-bold mb-2 font-heading">{column.title}</h3>
+                      {(cards || []).filter(card => card.type === column.id).map((card) => (
+                        <Card key={card.id} className="mb-2 relative">
+                          <div className="px-2 pt-0">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleCardLike(card.id!)}
+                                  className={card.likes.split(',').includes(user?.id ?? "") ? "text-red-500" : ""}
+                                  disabled={isHistoryMode}
+                                >
+                                  <HeartIcon className="h-4 w-4" />
+                                </Button>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex -space-x-2 ml-2">
+                                        {
+                                        card.likes.split(',').filter(id => id).map((userId) => {
+                                          const likeUser = users.find(u => u.id === userId)
+                                          if (likeUser) {
+                                            return (
+                                              <Avatar key={userId} className="w-6 h-6 border-2 border-background">
                                                 <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
-                                                <AvatarFallback className="text-black">{likeUser.name?.[0] ?? '?'}</AvatarFallback>
+                                                <AvatarFallback>{likeUser.name[0]}</AvatarFallback>
                                               </Avatar>
-                                              <span>{likeUser.name}</span>
-                                            </div>
-                                          )
-                                        }
-                                        return null
-                                      })}
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                                            )
+                                          }
+                                          return null
+                                        })}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <div className="flex flex-col">
+                                        {card.likes.split(',').filter(id => id).map(userId => {
+                                          const likeUser = users.find(u => u.id === userId)
+                                          if (likeUser) {
+                                            return (
+                                              <div key={userId} className="flex items-center mb-2">
+                                                <Avatar className="w-6 h-6 mr-2">
+                                                  <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
+                                                  <AvatarFallback className="text-black">{likeUser.name?.[0] ?? '?'}</AvatarFallback>
+                                                </Avatar>
+                                                <span>{likeUser.name}</span>
+                                              </div>
+                                            )
+                                          }
+                                          return null
+                                        })}
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                              {!isHistoryMode && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleCardDelete(card.id!)}
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                </Button>
+                              )}
                             </div>
-                            {!isHistoryMode && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleCardDelete(card.id!)}
-                              >
-                                <TrashIcon className="h-4 w-4" />
-                              </Button>
-                            )}
                           </div>
-                        </div>
-                        <CardContent className="pl-4 pr-4 pt-0 pb-1">
-                          <p className="whitespace-pre-wrap break-words">{card.content}</p>
-                        </CardContent>
-                        <div className="px-4 pb-2">
-                          <div className="flex justify-between text-xs text-gray-400">
-                            <span>{card.author}</span>
-                            <span>{format(new Date(card.createdAt), "yyyy-MM-dd HH:mm")}</span>
+                          <CardContent className="pl-4 pr-4 pt-0 pb-1">
+                            <p className="whitespace-pre-wrap break-words">{card.content}</p>
+                          </CardContent>
+                          <div className="px-4 pb-2">
+                            <div className="flex justify-between text-xs text-gray-400">
+                              <span>{card.author}</span>
+                              <span>{format(new Date(card.createdAt), "yyyy-MM-dd HH:mm")}</span>
+                            </div>
                           </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                ))}
-              </div>
+                        </Card>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
             </ScrollArea>
             {isSidebarOpen && (
               <ScrollArea className="w-[300px] pr-4">
