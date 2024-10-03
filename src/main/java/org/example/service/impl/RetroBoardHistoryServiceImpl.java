@@ -15,7 +15,7 @@ public class RetroBoardHistoryServiceImpl extends ServiceImpl<RetroBoardHistoryM
     @Override
     public List<RetroBoardHistory> getAllHistory() {
         return lambdaQuery()
-                .orderByDesc(RetroBoardHistory::getId)
+                .orderByDesc(RetroBoardHistory::getDeletedAt)
                 .list();
     }
 

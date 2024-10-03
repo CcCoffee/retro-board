@@ -14,5 +14,5 @@ VALUES
 
 -- Test data for retro_board_history
 INSERT INTO retro_board_history (cards_json, deleted_by, deleted_at) VALUES 
-('[{"id":1,"type":"GOOD","content":"Great teamwork","isAnonymous":false,"author":"John","likes":"2","createdAt":"2023-04-01 10:00:00"},{"id":2,"type":"BAD","content":"Communication issues","isAnonymous":true,"author":"Anonymous","likes":"1","createdAt":"2023-04-01 11:00:00"}]', 'admin', '2023-05-01 14:30:00'),
-('[{"id":3,"type":"ACTION","content":"Improve documentation","isAnonymous":false,"author":"Alice","likes":"3","createdAt":"2023-04-02 09:00:00"}]', 'manager', '2023-05-02 16:45:00');
+('[{"id":2,"type":"bad","content":"项目进度有些延迟","author":null,"likes":"E004","createdAt":"2024-10-03T10:54:00.92034","anonymous":true},{"id":4,"type":"good","content":"完成了项目里程碑","author":"E001","likes":"","createdAt":"2024-10-03T02:54:52.971","anonymous":false},{"id":5,"type":"bad","content":"迟到问题","author":"Anonymous","likes":"","createdAt":"2024-10-03T02:55:12.283","anonymous":false}]', 'E001', '2024-10-03 10:55:37.281534'),
+('[{"id":1,"type":"good","content":"本周团队协作非常顺畅","author":"E001","likes":"E002,E003","createdAt":"2024-10-03T10:45:14.709983","anonymous":false},{"id":2,"type":"bad","content":"项目进度有些延迟","author":null,"likes":"E004","createdAt":"2024-10-03T10:45:14.709983","anonymous":true},{"id":3,"type":"change","content":"建议增加每日站会","author":"E002","likes":"E001,E003,E004,E005","createdAt":"2024-10-03T10:45:14.709983","anonymous":false}]', 'E001', '2024-10-03 10:49:39.655164');
