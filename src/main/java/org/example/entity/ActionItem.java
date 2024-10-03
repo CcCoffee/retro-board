@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 public class ActionItem {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String assignee;
+    private String assigneeId;
+    private String assigneeName;
     private LocalDate dueDate;
     private String content;
     private LocalDateTime createdAt;
@@ -24,12 +25,20 @@ public class ActionItem {
         this.id = id;
     }
 
-    public String getAssignee() {
-        return assignee;
+    public String getAssigneeId() {
+        return assigneeId;
     }
 
-    public void setAssignee(String assignee) {
-        this.assignee = assignee;
+    public void setAssigneeId(String assigneeId) {
+        this.assigneeId = assigneeId;
+    }
+
+    public String getAssigneeName() {
+        return assigneeName;
+    }
+
+    public void setAssigneeName(String assigneeName) {
+        this.assigneeName = assigneeName;
     }
 
     public LocalDate getDueDate() {

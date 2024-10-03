@@ -1,23 +1,22 @@
-package org.example.entity;
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+package org.example.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@TableName("retro_card")
-public class RetroCard {
-    @TableId(type = IdType.AUTO)
+public class RetroCardDTO {
     private Long id;
     private String type;
     private String content;
-    private Boolean isAnonymous;
+    private boolean isAnonymous;
     private String authorId;
     private String authorName;
-    private String likesJson;
+    private List<LikeUser> likes;
     private LocalDateTime createdAt;
 
+    // 构造函数
+    public RetroCardDTO() {}
+
+    // Getter和Setter方法
     public Long getId() {
         return id;
     }
@@ -66,12 +65,12 @@ public class RetroCard {
         this.authorName = authorName;
     }
 
-    public String getLikesJson() {
-        return likesJson;
+    public List<LikeUser> getLikes() {
+        return likes;
     }
 
-    public void setLikesJson(String likesJson) {
-        this.likesJson = likesJson;
+    public void setLikes(List<LikeUser> likes) {
+        this.likes = likes;
     }
 
     public LocalDateTime getCreatedAt() {

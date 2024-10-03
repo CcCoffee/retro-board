@@ -30,10 +30,11 @@ public class RetroBoardHistoryServiceImpl extends ServiceImpl<RetroBoardHistoryM
     }
 
     @Override
-    public void saveHistory(String cardsJson, String deletedBy) {
+    public void saveHistory(String cardsJson, String deletedByUserId, String deletedByUsername) {
         RetroBoardHistory history = new RetroBoardHistory();
         history.setCardsJson(cardsJson);
-        history.setDeletedBy(deletedBy);
+        history.setDeletedByUserId(deletedByUserId);
+        history.setDeletedByUsername(deletedByUsername);
         history.setDeletedAt(LocalDateTime.now());
         save(history);
     }

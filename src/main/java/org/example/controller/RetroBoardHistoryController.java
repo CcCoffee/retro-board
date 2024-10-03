@@ -18,11 +18,14 @@ public class RetroBoardHistoryController {
     @Autowired
     private RetroBoardHistoryService retroBoardHistoryService;
 
+    @Autowired
+    private RetroBoardHistoryConverter retroBoardHistoryConverter;
+
     @GetMapping
     public ResponseEntity<List<RetroBoardHistoryDTO>> getAllHistory() {
         List<RetroBoardHistory> histories = retroBoardHistoryService.getAllHistory();
         List<RetroBoardHistoryDTO> dtos = histories.stream()
-                .map(RetroBoardHistoryConverter::toDTO)
+                .map(item-> retroBoardHistoryConverter.toDTO(item))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
@@ -33,7 +36,7 @@ public class RetroBoardHistoryController {
         if (history == null) {
             return ResponseEntity.notFound().build();
         }
-        RetroBoardHistoryDTO dto = RetroBoardHistoryConverter.toDTO(history);
+        RetroBoardHistoryDTO dto = retroBoardHistoryConverter.toDTO(history);
         return ResponseEntity.ok(dto);
     }
 
@@ -41,5 +44,12 @@ public class RetroBoardHistoryController {
     public ResponseEntity<Void> deleteHistory(@PathVariable Long id) {
         retroBoardHistoryService.deleteHistory(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping
+    public ResponseEntity<RetroBoardHistoryDTO> createHistory(@RequestBody RetroBoardHistoryDTO historyDTO) {
+        RetroBoardHistory history = retroBoardHistoryConverter.toEntity(historyDTO);
+        retroBoardHistoryService.save(history);
+        return ResponseEntity.ok(retroBoardHistoryConverter.toDTO(history));
     }
 }
