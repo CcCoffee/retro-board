@@ -1,9 +1,9 @@
 -- 插入测试数据到 retro_card 表
-INSERT INTO retro_card (id, content, type, is_anonymous, author_json, likes_json, created_at)
+INSERT INTO retro_card (content, type, is_anonymous, author_json, likes_json, created_at)
 VALUES
-(1, '我们成功地完成了项目', 'good', FALSE, '{"id": "E001", "name": "张三", "avatar": "avatar1.jpg", "email": "zhangsan@example.com"}', '[{"id": "E002", "name": "李四", "avatar": "avatar2.jpg", "email": "lisi@example.com"}, {"id": "E003", "name": "王五", "avatar": "avatar3.jpg", "email": "wangwu@example.com"}]', '2023-03-01 10:00:00'),
-(2, '沟通还需要改进', 'bad', FALSE, '{"id": "E002", "name": "李四", "avatar": "avatar2.jpg", "email": "lisi@example.com"}', '[{"id": "E001", "name": "张三", "avatar": "avatar1.jpg", "email": "zhangsan@example.com"}]', '2023-03-01 11:00:00'),
-(3, '我们应该更频繁地进行代码审查', 'change', FALSE, '{"id": "E003", "name": "王五", "avatar": "avatar3.jpg", "email": "wangwu@example.com"}', '[]', '2023-03-01 12:00:00');
+('我们成功地完成了项目', 'good', FALSE, '{"id": "E001", "name": "张三", "avatar": "avatar1.jpg", "email": "zhangsan@example.com"}', '[{"id": "E002", "name": "李四", "avatar": "avatar2.jpg", "email": "lisi@example.com"}, {"id": "E003", "name": "王五", "avatar": "avatar3.jpg", "email": "wangwu@example.com"}]', '2023-03-01 10:00:00'),
+('沟通还需要改进', 'bad', FALSE, '{"id": "E002", "name": "李四", "avatar": "avatar2.jpg", "email": "lisi@example.com"}', '[{"id": "E001", "name": "张三", "avatar": "avatar1.jpg", "email": "zhangsan@example.com"}]', '2023-03-01 11:00:00'),
+('我们应该更频繁地进行代码审查', 'change', FALSE, '{"id": "E003", "name": "王五", "avatar": "avatar3.jpg", "email": "wangwu@example.com"}', '[]', '2023-03-01 12:00:00');
 
 -- 插入测试数据到 action_item 表
 INSERT INTO action_item (assignee_json, due_date, content, created_at)
