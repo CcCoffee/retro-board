@@ -157,14 +157,22 @@ export default function RetroBoard() {
   }
 
   const handleCardDelete = async (cardId: number) => {
+    const currentUser = authService.getCurrentUser();
+    const cardToDelete = cards.find(card => card.id === cardId);
+
+    if (!currentUser || !cardToDelete || (cardToDelete.author !== currentUser.name && cardToDelete.author !== "Anonymous")) {
+      showToast.error("您没有权限删除这张卡片。");
+      return;
+    }
+
     try {
-      const updatedCards = cards.filter(card => card.id !== cardId)
-      await retroService.deleteCard(cardId)
-      setCards(updatedCards)
-      showToast.success("Card deleted successfully.")
+      const updatedCards = cards.filter(card => card.id !== cardId);
+      await retroService.deleteCard(cardId);
+      setCards(updatedCards);
+      showToast.success("卡片删除成功。");
     } catch (error) {
-      console.error("Failed to delete card:", error)
-      showToast.error("Failed to delete card. Please try again.")
+      console.error("删除卡片失败:", error);
+      showToast.error("删除卡片失败。请重试。");
     }
   }
 
@@ -562,7 +570,7 @@ export default function RetroBoard() {
                                   </Tooltip>
                                 </TooltipProvider>
                               </div>
-                              {!isHistoryMode && (
+                              {!isHistoryMode && user && (card.author === user.name || card.author === "Anonymous") && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
