@@ -1,44 +1,66 @@
 package org.example.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.converter.RetroCardConverter;
 import org.example.dto.RetroCardDTO;
+import org.example.dto.UserDTO;
 import org.example.entity.RetroCard;
 import org.example.mapper.RetroCardMapper;
 import org.example.service.RetroCardService;
-import org.example.service.RetroBoardHistoryService;
-import org.example.util.JsonUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-public class RetroCardServiceImpl extends ServiceImpl<RetroCardMapper, RetroCard> implements RetroCardService {
+public class RetroCardServiceImpl implements RetroCardService {
 
-    @Autowired
-    private RetroBoardHistoryService retroBoardHistoryService;
-    @Autowired
-    private RetroCardConverter retroCardConverter;
-    @Autowired
-    private JsonUtil jsonUtil;
+    private final RetroCardMapper retroCardMapper;
+    private final RetroCardConverter retroCardConverter;
+
+    public RetroCardServiceImpl(RetroCardMapper retroCardMapper, RetroCardConverter retroCardConverter) {
+        this.retroCardMapper = retroCardMapper;
+        this.retroCardConverter = retroCardConverter;
+    }
 
     @Override
-    @Transactional
-    public void clearBoard(String deletedByUserId, String deletedByUsername) {
-        List<RetroCard> allCards = list();
-        List<RetroCardDTO> allCardDTOs = allCards.stream()
-                .map(retroCardConverter::toDTO)
-                .collect(Collectors.toList());
-        
-        String cardsJson = jsonUtil.convertCardsToJson(allCardDTOs);
-        retroBoardHistoryService.saveHistory(cardsJson, deletedByUserId, deletedByUsername);
-        remove(null);
+    public RetroCardDTO createRetroCard(RetroCardDTO retroCardDTO) {
+        RetroCard retroCard = retroCardConverter.toEntity(retroCardDTO);
+        retroCardMapper.insert(retroCard);
+        return retroCardConverter.toDTO(retroCard);
+    }
+
+    @Override
+    public RetroCardDTO getRetroCardById(Long id) {
+        RetroCard retroCard = retroCardMapper.selectById(id);
+        return retroCardConverter.toDTO(retroCard);
+    }
+
+    @Override
+    public List<RetroCardDTO> getAllRetroCards() {
+        List<RetroCard> retroCards = retroCardMapper.selectList(null);
+        return retroCardConverter.toDTOList(retroCards);
+    }
+
+    @Override
+    public RetroCardDTO updateRetroCard(Long id, RetroCardDTO retroCardDTO) {
+        RetroCard retroCard = retroCardConverter.toEntity(retroCardDTO);
+        retroCard.setId(id);
+        retroCardMapper.updateById(retroCard);
+        return retroCardConverter.toDTO(retroCard);
+    }
+
+    @Override
+    public void deleteRetroCard(Long id) {
+        retroCardMapper.deleteById(id);
+    }
+
+    @Override
+    public RetroCardDTO likeRetroCard(Long id, UserDTO user) {
+        RetroCard retroCard = retroCardMapper.selectById(id);
+        RetroCardDTO retroCardDTO = retroCardConverter.toDTO(retroCard);
+        List<UserDTO> likes = retroCardDTO.getLikes();
+        likes.add(user);
+        retroCard = retroCardConverter.toEntity(retroCardDTO);
+        retroCardMapper.updateById(retroCard);
+        return retroCardConverter.toDTO(retroCard);
     }
 }

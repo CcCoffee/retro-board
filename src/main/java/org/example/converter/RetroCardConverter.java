@@ -1,59 +1,69 @@
 package org.example.converter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.dto.LikeUser;
 import org.example.dto.RetroCardDTO;
+import org.example.dto.UserDTO;
 import org.example.entity.RetroCard;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class RetroCardConverter {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public RetroCardDTO toDTO(RetroCard retroCard) {
-        RetroCardDTO dto = new RetroCardDTO();
-        dto.setId(retroCard.getId());
-        dto.setType(retroCard.getType());
-        dto.setContent(retroCard.getContent());
-        dto.setAnonymous(retroCard.isAnonymous());
-        dto.setAuthorId(retroCard.getAuthorId());
-        dto.setAuthorName(retroCard.getAuthorName());
-        dto.setCreatedAt(retroCard.getCreatedAt());
+	public RetroCardDTO toDTO(RetroCard entity) {
+		RetroCardDTO dto = new RetroCardDTO();
+		dto.setId(entity.getId());
+		dto.setType(entity.getType());
+		dto.setContent(entity.getContent());
+		dto.setAnonymous(entity.isAnonymous());
+		dto.setCreatedAt(entity.getCreatedAt());
 
-        try {
-            List<LikeUser> likes = objectMapper.readValue(retroCard.getLikesJson(), new TypeReference<List<LikeUser>>() {});
-            dto.setLikes(likes);
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing likes JSON", e);
-        }
+		try {
+			// 检查 authorJson 是否为空
+			if (entity.getAuthorJson() != null && !entity.getAuthorJson().isEmpty()) {
+				UserDTO author = objectMapper.readValue(entity.getAuthorJson(), UserDTO.class);
+				dto.setAuthor(author);
+			}
 
-        return dto;
-    }
+			// 检查 likesJson 是否为空
+			if (entity.getLikesJson() != null && !entity.getLikesJson().isEmpty()) {
+				List<UserDTO> likes = objectMapper.readValue(entity.getLikesJson(), 
+					objectMapper.getTypeFactory().constructCollectionType(List.class, UserDTO.class));
+				dto.setLikes(likes);
+			}
+		} catch (Exception e) {
+			// 记录异常，但不抛出
+			e.printStackTrace();
+		}
 
-    public RetroCard toEntity(RetroCardDTO dto) {
-        RetroCard entity = new RetroCard();
-        entity.setId(dto.getId());
-        entity.setType(dto.getType());
-        entity.setContent(dto.getContent());
-        entity.setAnonymous(dto.isAnonymous());
-        entity.setAuthorId(dto.getAuthorId());
-        entity.setAuthorName(dto.getAuthorName());
-        entity.setCreatedAt(dto.getCreatedAt());
+		return dto;
+	}
 
-        try {
-            String likesJson = objectMapper.writeValueAsString(dto.getLikes());
-            entity.setLikesJson(likesJson);
-        } catch (Exception e) {
-            throw new RuntimeException("Error converting likes to JSON", e);
-        }
+	public RetroCard toEntity(RetroCardDTO dto) {
+		RetroCard entity = new RetroCard();
+		entity.setId(dto.getId());
+		entity.setType(dto.getType());
+		entity.setContent(dto.getContent());
+		entity.setAnonymous(dto.isAnonymous());
+		entity.setCreatedAt(dto.getCreatedAt());
 
-        return entity;
-    }
+		try {
+			String authorJson = objectMapper.writeValueAsString(dto.getAuthor());
+			entity.setAuthorJson(authorJson);
+			String likesJson = objectMapper.writeValueAsString(dto.getLikes());
+			entity.setLikesJson(likesJson);
+		} catch (Exception e) {
+			// 处理异常
+		}
 
+		return entity;
+	}
+
+	public List<RetroCardDTO> toDTOList(List<RetroCard> entities) {
+		return entities.stream().map(this::toDTO).collect(Collectors.toList());
+	}
 }

@@ -5,26 +5,19 @@ export interface User {
   email: string;
 }
 
-export interface LikeUser {
-  userId: string;
-  username: string;
-}
-
 export interface RetroCard {
   id?: number;
   type: string;
   content: string;
   isAnonymous: boolean;
-  authorId: string;
-  authorName: string;
-  likes: LikeUser[];
+  likes: User[]; // 修改这里
   createdAt: string;
+  author: User; // 修改这里
 }
 
 export interface ActionItem {
   id?: number;
-  assigneeId: string;
-  assigneeName: string;
+  assignee: User;
   dueDate: string;
   content: string;
   createdAt: string;
@@ -33,7 +26,6 @@ export interface ActionItem {
 export interface RetroBoardHistory {
   id: number;
   cards: RetroCard[];
-  deletedByUserId: string;
-  deletedByUsername: string;
+  deletedBy: User; // 修改这里
   deletedAt: string;
 }

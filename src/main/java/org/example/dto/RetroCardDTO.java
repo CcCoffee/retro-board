@@ -8,10 +8,9 @@ public class RetroCardDTO {
     private String type;
     private String content;
     private boolean isAnonymous;
-    private String authorId;
-    private String authorName;
-    private List<LikeUser> likes;
+    private List<UserDTO> likes; // 修改这里
     private LocalDateTime createdAt;
+    private UserDTO author;
 
     // 构造函数
     public RetroCardDTO() {}
@@ -49,27 +48,11 @@ public class RetroCardDTO {
         isAnonymous = anonymous;
     }
 
-    public String getAuthorId() {
-        return authorId;
-    }
-
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public List<LikeUser> getLikes() {
+    public List<UserDTO> getLikes() { // 修改这里
         return likes;
     }
 
-    public void setLikes(List<LikeUser> likes) {
+    public void setLikes(List<UserDTO> likes) { // 修改这里
         this.likes = likes;
     }
 
@@ -79,5 +62,13 @@ public class RetroCardDTO {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public UserDTO getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(UserDTO author) {
+        this.author = author;
     }
 }

@@ -44,7 +44,7 @@ import { Separator } from "@/components/ui/separator"
 
 import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
-import { User, RetroCard, ActionItem, RetroBoardHistory, LikeUser } from "@/types/retro"
+import { User, RetroCard, ActionItem, RetroBoardHistory } from "@/types/retro"
 import { showToast } from "@/utils/toast"
 import {
   Dialog,
@@ -64,11 +64,11 @@ const typesInfo = [
 ]
 
 const users: User[] = [
-  { id: "E001", name: "E001", avatar: "/E001.svg?height=32&width=32", email: "E001@example.com" },
-  { id: "E002", name: "E002", avatar: "/E002.svg?height=32&width=32", email: "E002@example.com" },
-  { id: "E003", name: "E003", avatar: "/E003.svg?height=32&width=32", email: "E003@example.com" },
-  { id: "E004", name: "E004", avatar: "/E004.svg?height=32&width=32", email: "E004@example.com" },
-  { id: "E005", name: "E005", avatar: "/E005.svg?height=32&width=32", email: "E005@example.com" },
+  { id: "E001", name: "张三", avatar: "/E001.svg?height=32&width=32", email: "zhangsan@example.com" },
+  { id: "E002", name: "李四", avatar: "/E002.svg?height=32&width=32", email: "lisi@example.com" },
+  { id: "E003", name: "王五", avatar: "/E003.svg?height=32&width=32", email: "wangwu@example.com" },
+  { id: "E004", name: "赵六", avatar: "/E004.svg?height=32&width=32", email: "zhaoliu@example.com" },
+  { id: "E005", name: "钱七", avatar: "/E005.svg?height=32&width=32", email: "qianqi@example.com" },
 ]
 
 export default function RetroBoard() {
@@ -76,7 +76,7 @@ export default function RetroBoard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [cards, setCards] = useState<RetroCard[]>([])
-  const [newCard, setNewCard] = useState<Omit<RetroCard, 'id' | 'authorId' | 'authorName' | 'likes'>>({
+  const [newCard, setNewCard] = useState<Omit<RetroCard, 'id' | 'author' | 'likes'>>({
     type: "good",
     content: "",
     isAnonymous: false,
@@ -85,8 +85,7 @@ export default function RetroBoard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [actionItems, setActionItems] = useState<ActionItem[]>([])
   const [newActionItem, setNewActionItem] = useState<Omit<ActionItem, 'id' | 'createdAt'>>({
-    assigneeId: "",
-    assigneeName: "",
+    assignee: { id: "", name: "", avatar: "", email: "" },
     dueDate: "",
     content: ""
   })
@@ -131,7 +130,7 @@ export default function RetroBoard() {
     }
   }
 
-  const isActionItemValid = newActionItem.assigneeId && newActionItem.content.trim() !== ""
+  const isActionItemValid = newActionItem.assignee.id && newActionItem.content.trim() !== ""
 
   const isSubmitEnabled = newCard.content.trim() !== ""
   const isActionItemSubmitEnabled = isActionItemValid
@@ -146,8 +145,7 @@ export default function RetroBoard() {
       try {
         const newCardData: RetroCard = { 
           ...newCard, 
-          authorId: user.id,
-          authorName: newCard.isAnonymous ? "Anonymous" : user.name, 
+          author: user,
           likes: [], 
           createdAt: new Date().toISOString()
         }
@@ -166,7 +164,7 @@ export default function RetroBoard() {
     const currentUser = authService.getCurrentUser();
     const cardToDelete = cards.find(card => card.id === cardId);
 
-    if (!currentUser || !cardToDelete || (cardToDelete.authorId !== currentUser.id && cardToDelete.authorName !== "Anonymous")) {
+    if (!currentUser || !cardToDelete || (cardToDelete.author.id !== currentUser.id && !cardToDelete.isAnonymous)) {
       showToast.error("您没有权限删除这张卡片。");
       return;
     }
@@ -187,11 +185,11 @@ export default function RetroBoard() {
     try {
       const updatedCards = cards.map(card => {
         if (card.id === cardId) {
-          const likeIndex = card.likes.findIndex(like => like.userId === user.id)
+          const likeIndex = card.likes.findIndex(like => like.id === user.id)
           if (likeIndex === -1) {
-            return { ...card, likes: [...card.likes, { userId: user.id, username: user.name }] }
+            return { ...card, likes: [...card.likes, user] }
           } else {
-            return { ...card, likes: card.likes.filter(like => like.userId !== user.id) }
+            return { ...card, likes: card.likes.filter(like => like.id !== user.id) }
           }
         }
         return card
@@ -228,7 +226,11 @@ export default function RetroBoard() {
         }
         const updatedActionItems = await retroService.getActionItems()
         setActionItems(updatedActionItems)
-        setNewActionItem({ assigneeId: "", assigneeName: "", dueDate: "", content: "" })
+        setNewActionItem({ 
+          assignee: { id: "", name: "", avatar: "", email: "" }, 
+          dueDate: "", 
+          content: "" 
+        })
         setEditingActionItem(null)
         showToast.success(editingActionItem ? "Action item updated." : "New action item added.")
       } catch (error) {
@@ -252,8 +254,7 @@ export default function RetroBoard() {
 
   const handleActionItemEdit = (item: ActionItem) => {
     setNewActionItem({
-      assigneeId: item.assigneeId,
-      assigneeName: item.assigneeName,
+      assignee: item.assignee,
       dueDate: item.dueDate,
       content: item.content
     })
@@ -413,7 +414,7 @@ export default function RetroBoard() {
                             onClick={() => loadHistoryById(history.id)}
                           >
                             <span>{format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm")}</span>
-                            <span>{history.deletedByUsername}</span>
+                            <span>{history.deletedBy.name}</span>
                           </div>
                         ))}
                       </>
@@ -538,7 +539,7 @@ export default function RetroBoard() {
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => handleCardLike(card.id!)}
-                                  className={card.likes.some(like => like.userId === user?.id) ? "text-red-500" : ""}
+                                  className={card.likes.some(like => like.id === user?.id) ? "text-red-500" : ""}
                                   disabled={isHistoryMode}
                                 >
                                   <HeartIcon className="h-4 w-4" />
@@ -547,43 +548,31 @@ export default function RetroBoard() {
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <div className="flex -space-x-2 ml-2">
-                                        {card.likes.map((like) => {
-                                          const likeUser = users.find(u => u.id === like.userId)
-                                          if (likeUser) {
-                                            return (
-                                              <Avatar key={like.userId} className="w-6 h-6 border-2 border-background">
-                                                <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
-                                                <AvatarFallback>{likeUser.name[0]}</AvatarFallback>
-                                              </Avatar>
-                                            )
-                                          }
-                                          return null
-                                        })}
+                                        {card.likes.map((like) => (
+                                          <Avatar key={like.id} className="w-6 h-6 border-2 border-background">
+                                            <AvatarImage src={like.avatar} alt={like.name} />
+                                            <AvatarFallback>{like.name[0]}</AvatarFallback>
+                                          </Avatar>
+                                        ))}
                                       </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       <div className="flex flex-col">
-                                        {card.likes.map(like => {
-                                          const likeUser = users.find(u => u.id === like.userId)
-                                          if (likeUser) {
-                                            return (
-                                              <div key={like.userId} className="flex items-center mb-2">
-                                                <Avatar className="w-6 h-6 mr-2">
-                                                  <AvatarImage src={likeUser.avatar} alt={likeUser.name} />
-                                                  <AvatarFallback className="text-black">{likeUser.name[0] ?? '?'}</AvatarFallback>
-                                                </Avatar>
-                                                <span>{like.username}</span>
-                                              </div>
-                                            )
-                                          }
-                                          return null
-                                        })}
+                                        {card.likes.map(like => (
+                                          <div key={like.id} className="flex items-center mb-2">
+                                            <Avatar className="w-6 h-6 mr-2">
+                                              <AvatarImage src={like.avatar} alt={like.name} />
+                                              <AvatarFallback className="text-black">{like.name[0] ?? '?'}</AvatarFallback>
+                                            </Avatar>
+                                            <span>{like.name}</span>
+                                          </div>
+                                        ))}
                                       </div>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
                               </div>
-                              {!isHistoryMode && user && (card.authorId === user.id || card.authorName === "Anonymous") && (
+                              {!isHistoryMode && user && (card.author.id === user.id || card.isAnonymous) && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -599,7 +588,7 @@ export default function RetroBoard() {
                           </CardContent>
                           <div className="px-4 pb-2">
                             <div className="flex justify-between text-xs text-gray-400">
-                              <span>{card.authorName}</span>
+                              <span>{card.isAnonymous ? "Anonymous" : card.author.name}</span>
                               <span>{format(new Date(card.createdAt), "yyyy-MM-dd HH:mm")}</span>
                             </div>
                           </div>
@@ -623,8 +612,8 @@ export default function RetroBoard() {
                         aria-expanded={openAssignee}
                         className="w-full justify-between"
                       >
-                        {newActionItem.assigneeId
-                          ? `${users.find((user) => user.id === newActionItem.assigneeId)?.name} (${newActionItem.assigneeId})`
+                        {newActionItem.assignee.id
+                          ? `${newActionItem.assignee.name} (${newActionItem.assignee.id})`
                           : "Select assignee..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -640,14 +629,14 @@ export default function RetroBoard() {
                                 key={user.id}
                                 value={`${user.name} ${user.id}`.toLowerCase()}
                                 onSelect={() => {
-                                  setNewActionItem({ ...newActionItem, assigneeId: user.id, assigneeName: user.name })
+                                  setNewActionItem({ ...newActionItem, assignee: user })
                                   setOpenAssignee(false)
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    newActionItem.assigneeId === user.id ? "opacity-100" : "opacity-0"
+                                    newActionItem.assignee.id === user.id ? "opacity-100" : "opacity-0"
                                   )}
                                 />
                                 {user.name} ({user.id})
@@ -713,7 +702,7 @@ export default function RetroBoard() {
                       <div className="h-[40px] flex justify-between items-center pl-4 pr-2">
                         <div className="flex items-center space-x-2 overflow-hidden">
                           <span className="text-xs text-muted-foreground truncate">
-                            {item.assigneeName}
+                            {item.assignee.name}
                           </span>
                           <span className="text-xs text-muted-foreground">|</span>
                           <span className="text-xs text-muted-foreground truncate">

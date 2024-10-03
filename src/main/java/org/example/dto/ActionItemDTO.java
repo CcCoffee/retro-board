@@ -1,21 +1,19 @@
-package org.example.entity;
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+package org.example.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@TableName("action_item")
-public class ActionItem {
-    @TableId(type = IdType.AUTO)
+public class ActionItemDTO {
     private Long id;
-    private String assigneeJson;
+    private UserDTO assignee;
     private LocalDate dueDate;
     private String content;
     private LocalDateTime createdAt;
 
+    // 构造函数
+    public ActionItemDTO() {}
+
+    // Getter 和 Setter 方法
     public Long getId() {
         return id;
     }
@@ -24,12 +22,12 @@ public class ActionItem {
         this.id = id;
     }
 
-    public String getAssigneeJson() {
-        return assigneeJson;
+    public UserDTO getAssignee() {
+        return assignee;
     }
 
-    public void setAssigneeJson(String assigneeJson) {
-        this.assigneeJson = assigneeJson;
+    public void setAssignee(UserDTO assignee) {
+        this.assignee = assignee;
     }
 
     public LocalDate getDueDate() {

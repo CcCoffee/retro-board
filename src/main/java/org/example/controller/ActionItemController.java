@@ -1,5 +1,7 @@
 package org.example.controller;
 
+import org.example.converter.ActionItemConverter;
+import org.example.dto.ActionItemDTO;
 import org.example.entity.ActionItem;
 import org.example.service.ActionItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,27 +16,34 @@ public class ActionItemController {
     @Autowired
     private ActionItemService actionItemService;
 
+    @Autowired
+    private ActionItemConverter actionItemConverter;
+
     @PostMapping
-    public ActionItem create(@RequestBody ActionItem actionItem) {
+    public ActionItemDTO create(@RequestBody ActionItemDTO actionItemDTO) {
+        ActionItem actionItem = actionItemConverter.toEntity(actionItemDTO);
         actionItemService.save(actionItem);
-        return actionItem;
+        return actionItemConverter.toDTO(actionItem);
     }
 
     @GetMapping("/{id}")
-    public ActionItem getById(@PathVariable Long id) {
-        return actionItemService.getById(id);
+    public ActionItemDTO getById(@PathVariable Long id) {
+        ActionItem actionItem = actionItemService.getById(id);
+        return actionItemConverter.toDTO(actionItem);
     }
 
     @GetMapping
-    public List<ActionItem> getAll() {
-        return actionItemService.list();
+    public List<ActionItemDTO> getAll() {
+        List<ActionItem> actionItems = actionItemService.list();
+        return actionItemConverter.toDTOList(actionItems);
     }
 
     @PutMapping("/{id}")
-    public ActionItem update(@PathVariable Long id, @RequestBody ActionItem actionItem) {
+    public ActionItemDTO update(@PathVariable Long id, @RequestBody ActionItemDTO actionItemDTO) {
+        ActionItem actionItem = actionItemConverter.toEntity(actionItemDTO);
         actionItem.setId(id);
         actionItemService.updateById(actionItem);
-        return actionItem;
+        return actionItemConverter.toDTO(actionItem);
     }
 
     @DeleteMapping("/{id}")

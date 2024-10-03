@@ -6,22 +6,27 @@ import java.util.List;
 public class RetroBoardHistoryDTO {
     private Long id;
     private List<RetroCardDTO> cards; // 修改为使用 RetroCardDTO
-    private String deletedByUserId;
-    private String deletedByUsername;
+    private UserDTO deletedBy;
     private LocalDateTime deletedAt;
 
-    // Constructors
+    // 构造函数
     public RetroBoardHistoryDTO() {}
 
-    public RetroBoardHistoryDTO(Long id, List<RetroCardDTO> cards, String deletedByUserId, String deletedByUsername, LocalDateTime deletedAt) {
+    public RetroBoardHistoryDTO(Long id, List<RetroCardDTO> cards, UserDTO deletedBy, LocalDateTime deletedAt) {
         this.id = id;
         this.cards = cards; // 修改为使用 RetroCardDTO
-        this.deletedByUserId = deletedByUserId;
-        this.deletedByUsername = deletedByUsername;
+        this.deletedBy = deletedBy;
         this.deletedAt = deletedAt;
     }
 
-    // Getters and setters
+    public UserDTO getDeletedBy() {
+        return deletedBy;
+    }
+
+    public void setDeletedBy(UserDTO deletedBy) {
+        this.deletedBy = deletedBy;
+    }
+
     public Long getId() {
         return id;
     }
@@ -36,22 +41,6 @@ public class RetroBoardHistoryDTO {
 
     public void setCards(List<RetroCardDTO> cards) {
         this.cards = cards;
-    }
-
-    public String getDeletedByUserId() {
-        return deletedByUserId;
-    }
-
-    public void setDeletedByUserId(String deletedByUserId) {
-        this.deletedByUserId = deletedByUserId;
-    }
-
-    public String getDeletedByUsername() {
-        return deletedByUsername;
-    }
-
-    public void setDeletedByUsername(String deletedByUsername) {
-        this.deletedByUsername = deletedByUsername;
     }
 
     public LocalDateTime getDeletedAt() {

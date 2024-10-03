@@ -7,16 +7,14 @@ CREATE TABLE retro_card (
     type VARCHAR(255),
     content TEXT,
     is_anonymous BOOLEAN DEFAULT FALSE,
-    author_id VARCHAR(255),
-    author_name VARCHAR(255),
+    author_json TEXT,
     likes_json TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE action_item (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    assignee_id VARCHAR(255),
-    assignee_name VARCHAR(255),
+    assignee_json TEXT,
     due_date DATE,
     content TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -25,7 +23,6 @@ CREATE TABLE action_item (
 CREATE TABLE retro_board_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cards_json TEXT,
-    deleted_by_user_id VARCHAR(255),
-    deleted_by_username VARCHAR(255),
+    deleted_by TEXT,
     deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

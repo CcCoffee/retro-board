@@ -1,65 +1,49 @@
 package org.example.controller;
 
-import org.example.converter.RetroCardConverter;
 import org.example.dto.RetroCardDTO;
 import org.example.dto.UserDTO;
-import org.example.entity.RetroCard;
 import org.example.service.RetroCardService;
-import org.example.util.LoginUserUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/retro-cards")
 public class RetroCardController {
 
-    @Autowired
-    private RetroCardService retroCardService;
+    private final RetroCardService retroCardService;
 
-    @Autowired
-    private LoginUserUtil loginUserUtil;
-
-    @Autowired
-    private RetroCardConverter retroCardConverter;
+    public RetroCardController(RetroCardService retroCardService) {
+        this.retroCardService = retroCardService;
+    }
 
     @PostMapping
-    public RetroCardDTO create(@RequestBody RetroCardDTO retroCardDTO) {
-        retroCardService.save(retroCardConverter.toEntity(retroCardDTO));
-        return retroCardDTO;
+    public RetroCardDTO createRetroCard(@RequestBody RetroCardDTO retroCardDTO) {
+        return retroCardService.createRetroCard(retroCardDTO);
     }
 
     @GetMapping("/{id}")
-    public RetroCardDTO getById(@PathVariable Long id) {
-        return retroCardConverter.toDTO(retroCardService.getById(id));
+    public RetroCardDTO getRetroCardById(@PathVariable Long id) {
+        return retroCardService.getRetroCardById(id);
     }
 
     @GetMapping
-    public List<RetroCardDTO> getAll() {
-        return retroCardService.list().stream()
-                .map(retroCardConverter::toDTO)
-                .collect(Collectors.toList());
+    public List<RetroCardDTO> getAllRetroCards() {
+        return retroCardService.getAllRetroCards();
     }
 
     @PutMapping("/{id}")
-    public RetroCardDTO update(@PathVariable Long id, @RequestBody RetroCardDTO retroCardDTO) {
-        retroCardDTO.setId(id);
-        retroCardService.updateById(retroCardConverter.toEntity(retroCardDTO));
-        return retroCardDTO;
+    public RetroCardDTO updateRetroCard(@PathVariable Long id, @RequestBody RetroCardDTO retroCardDTO) {
+        return retroCardService.updateRetroCard(id, retroCardDTO);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        retroCardService.removeById(id);
+    public void deleteRetroCard(@PathVariable Long id) {
+        retroCardService.deleteRetroCard(id);
     }
 
-    @PostMapping("/clear")
-    public ResponseEntity<Void> clearBoard() {
-        UserDTO currentUser = loginUserUtil.getCurrentUser();
-        retroCardService.clearBoard(currentUser.getId(), currentUser.getName());
-        return ResponseEntity.ok().build();
+    @PostMapping("/{id}/like")
+    public RetroCardDTO likeRetroCard(@PathVariable Long id, @RequestBody UserDTO user) {
+        return retroCardService.likeRetroCard(id, user);
     }
 }

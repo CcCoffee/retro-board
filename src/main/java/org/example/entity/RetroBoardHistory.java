@@ -11,8 +11,7 @@ public class RetroBoardHistory {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String cardsJson;
-    private String deletedByUserId;
-    private String deletedByUsername;
+    private String deletedBy;
     private LocalDateTime deletedAt;
 
     // Getters and setters
@@ -33,20 +32,12 @@ public class RetroBoardHistory {
         this.cardsJson = cardsJson;
     }
 
-    public String getDeletedByUserId() {
-        return deletedByUserId;
+    public String getDeletedBy() {
+        return deletedBy;
     }
 
-    public void setDeletedByUserId(String deletedByUserId) {
-        this.deletedByUserId = deletedByUserId;
-    }
-
-    public String getDeletedByUsername() {
-        return deletedByUsername;
-    }
-
-    public void setDeletedByUsername(String deletedByUsername) {
-        this.deletedByUsername = deletedByUsername;
+    public void setDeletedBy(String deletedBy) {
+        this.deletedBy = deletedBy;
     }
 
     public LocalDateTime getDeletedAt() {

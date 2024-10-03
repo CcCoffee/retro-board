@@ -13,8 +13,7 @@ public class RetroCard {
     private String type;
     private String content;
     private Boolean isAnonymous;
-    private String authorId;
-    private String authorName;
+    private String authorJson;
     private String likesJson;
     private LocalDateTime createdAt;
 
@@ -50,20 +49,12 @@ public class RetroCard {
         isAnonymous = anonymous;
     }
 
-    public String getAuthorId() {
-        return authorId;
+    public String getAuthorJson() {
+        return authorJson;
     }
 
-    public void setAuthorId(String authorId) {
-        this.authorId = authorId;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
+    public void setAuthorJson(String authorJson) {
+        this.authorJson = authorJson;
     }
 
     public String getLikesJson() {

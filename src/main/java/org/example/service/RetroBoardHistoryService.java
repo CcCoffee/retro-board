@@ -9,5 +9,4 @@ public interface RetroBoardHistoryService extends IService<RetroBoardHistory> {
     List<RetroBoardHistory> getAllHistory();
     RetroBoardHistory getHistoryById(Long id);
     void deleteHistory(Long id);
-    void saveHistory(String cardsJson, String deletedByUserId, String deletedByUsername);
 }

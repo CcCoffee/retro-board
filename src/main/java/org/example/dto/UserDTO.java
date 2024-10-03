@@ -6,6 +6,9 @@ public class UserDTO {
     private String avatar;
     private String email;
 
+    public UserDTO() {
+    }
+
     // 构造函数
     public UserDTO(String id, String name, String avatar, String email) {
         this.id = id;
