@@ -44,8 +44,17 @@ import { Separator } from "@/components/ui/separator"
 
 import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
-import { User, RetroCard, ActionItem } from "@/types/retro"
+import { User, RetroCard, ActionItem, RetroBoardHistory } from "@/types/retro"
 import { showToast } from "@/utils/toast"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { HistoryIcon } from "lucide-react"
 
 const typesInfo = [
   { id: "good", title: "Good", color: "bg-green-100", indicatorColor: "bg-green-300" },
@@ -79,6 +88,9 @@ export default function RetroBoard() {
   const [editingActionItem, setEditingActionItem] = useState<ActionItem | null>(null)
   const [openAssignee, setOpenAssignee] = useState(false)
   const router = useRouter()
+  const [histories, setHistories] = useState<RetroBoardHistory[]>([])
+  const [isHistoryMode, setIsHistoryMode] = useState(false)
+  const [currentHistoryDate, setCurrentHistoryDate] = useState<string | null>(null)
 
   useEffect(() => {
     const checkLoginStatus = () => {
@@ -269,6 +281,34 @@ export default function RetroBoard() {
     }
   }
 
+  const loadHistories = async () => {
+    try {
+      const loadedHistories = await retroService.getAllHistory()
+      setHistories(loadedHistories)
+    } catch (error) {
+      console.error("Failed to load histories:", error)
+      showToast.error("Failed to load histories. Please try again later.")
+    }
+  }
+
+  const loadHistoryById = async (id: number) => {
+    try {
+      const history = await retroService.getHistoryById(id)
+      setCards(history.cards)
+      setCurrentHistoryDate(format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm"))
+      setIsHistoryMode(true)
+    } catch (error) {
+      console.error("Failed to load history:", error)
+      showToast.error("Failed to load history. Please try again later.")
+    }
+  }
+
+  const exitHistoryMode = () => {
+    setIsHistoryMode(false)
+    setCurrentHistoryDate(null)
+    loadData()
+  }
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
@@ -313,6 +353,38 @@ export default function RetroBoard() {
               <h1 className="text-2xl font-bold font-heading text-white">Retro Board</h1>
             </div>
             <div className="flex items-center space-x-4 relative z-10">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-white" onClick={loadHistories}>
+                    <HistoryIcon className="h-5 w-5" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Retro Board History</DialogTitle>
+                    <DialogDescription>
+                      Select a history to view
+                    </DialogDescription>
+                  </DialogHeader>
+                  <ScrollArea className="h-[300px] mt-4">
+                    <div className="flex justify-between px-4 py-2 font-semibold">
+                      <span>Date</span>
+                      <span>Deleted By</span>
+                    </div>
+                    {histories.map((history) => (
+                      <Button
+                        key={history.id}
+                        variant="ghost"
+                        className="w-full justify-between"
+                        onClick={() => loadHistoryById(history.id)}
+                      >
+                        <span>{format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm")}</span>
+                        <span className="text-right">{history.deletedBy}</span>
+                      </Button>
+                    ))}
+                  </ScrollArea>
+                </DialogContent>
+              </Dialog>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-white">Hello, {user?.name}</span>
                 <DropdownMenu>
@@ -346,58 +418,67 @@ export default function RetroBoard() {
               </Button>
             </div>
           </div>
-          <div className="flex justify-end p-4 gap-2 items-center">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive">Clear Board</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete all retro cards from the board.
-                    Action items will not be affected.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleClearBoard}>Clear Board</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            
-            <Separator orientation="vertical" className="h-8 mx-2" />
-            
-            <Select value={newCard.type} onValueChange={(value) => setNewCard({ ...newCard, type: value })}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {typesInfo.map((typeInfo) => (
-                  <SelectItem key={typeInfo.id} value={typeInfo.id} className="flex items-center">
-                    <div className={`w-3 h-3 mr-2 ${typeInfo.indicatorColor} inline-block rounded-full`}></div>
-                    <span className="inline">{typeInfo.title}</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Input
-              placeholder="Enter your opinion"
-              value={newCard.content}
-              onChange={(e) => setNewCard({ ...newCard, content: e.target.value })}
-              onKeyPress={handleCardKeyPress}
-              className="flex-grow min-w-[200px]"
-            />
-            <div className="flex items-center">
-              <Checkbox
-                id="anonymous"
-                checked={newCard.isAnonymous}
-                onCheckedChange={(checked: boolean) => setNewCard({ ...newCard, isAnonymous: checked })}
-              />
-              <label htmlFor="anonymous" className="ml-2 hidden sm:inline">Anonymous</label>
-            </div>
-            <Button onClick={handleCardSubmit} disabled={!isSubmitEnabled}>Submit</Button>
+          <div className="flex justify-between p-4 gap-2 items-center">
+            <h1 className="text-2xl font-bold font-heading">
+              {isHistoryMode ? `Retro Board History - ${currentHistoryDate}` : "Retro Board"}
+            </h1>
+            {isHistoryMode ? (
+              <Button onClick={exitHistoryMode}>Exit History Mode</Button>
+            ) : (
+              <>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Clear Board</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete all retro cards from the board.
+                        Action items will not be affected.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleClearBoard}>Clear Board</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                
+                <Separator orientation="vertical" className="h-8 mx-2" />
+                
+                <Select value={newCard.type} onValueChange={(value) => setNewCard({ ...newCard, type: value })}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {typesInfo.map((typeInfo) => (
+                      <SelectItem key={typeInfo.id} value={typeInfo.id} className="flex items-center">
+                        <div className={`w-3 h-3 mr-2 ${typeInfo.indicatorColor} inline-block rounded-full`}></div>
+                        <span className="inline">{typeInfo.title}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Input
+                  placeholder="Enter your opinion"
+                  value={newCard.content}
+                  onChange={(e) => setNewCard({ ...newCard, content: e.target.value })}
+                  onKeyPress={handleCardKeyPress}
+                  className="flex-grow min-w-[200px]"
+                />
+                <div className="flex items-center">
+                  <Checkbox
+                    id="anonymous"
+                    checked={newCard.isAnonymous}
+                    onCheckedChange={(checked: boolean) => setNewCard({ ...newCard, isAnonymous: checked })}
+                  />
+                  <label htmlFor="anonymous" className="ml-2 hidden sm:inline">Anonymous</label>
+                </div>
+                <Button onClick={handleCardSubmit} disabled={!isSubmitEnabled}>Submit</Button>
+              </>
+            )}
           </div>
           <div className="flex flex-1 overflow-hidden">
             <ScrollArea className="flex-1 mr-4">
@@ -415,6 +496,7 @@ export default function RetroBoard() {
                                 size="icon"
                                 onClick={() => handleCardLike(card.id!)}
                                 className={card.likes.split(',').includes(user?.id ?? "") ? "text-red-500" : ""}
+                                disabled={isHistoryMode}
                               >
                                 <HeartIcon className="h-4 w-4" />
                               </Button>
@@ -459,13 +541,15 @@ export default function RetroBoard() {
                                 </Tooltip>
                               </TooltipProvider>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleCardDelete(card.id!)}
-                            >
-                              <TrashIcon className="h-4 w-4" />
-                            </Button>
+                            {!isHistoryMode && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleCardDelete(card.id!)}
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                         <CardContent className="pl-4 pr-4 pt-0 pb-1">

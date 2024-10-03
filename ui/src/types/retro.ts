@@ -21,3 +21,10 @@ export interface ActionItem {
   dueDate: string;
   content: string;
 }
+
+export interface RetroBoardHistory {
+  id: number
+  cards: RetroCard[]
+  deletedAt: string
+  deletedBy: string
+}

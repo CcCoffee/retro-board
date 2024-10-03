@@ -1,4 +1,4 @@
-import { RetroCard, ActionItem } from "@/types";
+import { RetroCard, ActionItem, RetroBoardHistory } from "@/types";
 import axiosInstance from "@/config/axiosConfig";
 import { showToast } from "@/utils/toast";
 
@@ -102,6 +102,28 @@ export const retroService = {
     } catch (error) {
       console.error('Failed to clean retro board:', error);
       showToast.error("Failed to clean retro board");
+      throw error;
+    }
+  },
+
+  getAllHistory: async (): Promise<RetroBoardHistory[]> => {
+    try {
+      const response = await axiosInstance.get('/history');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch retro board history:', error);
+      showToast.error("Failed to fetch retro board history");
+      throw error;
+    }
+  },
+
+  getHistoryById: async (id: number): Promise<RetroBoardHistory> => {
+    try {
+      const response = await axiosInstance.get(`/history/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to fetch retro board history with id ${id}:`, error);
+      showToast.error(`Failed to fetch retro board history with id ${id}`);
       throw error;
     }
   },
