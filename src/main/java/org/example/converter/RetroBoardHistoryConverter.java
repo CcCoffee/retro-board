@@ -2,9 +2,9 @@ package org.example.converter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.dto.RetroBoardHistoryDTO;
-import org.example.dto.RetroCardDTO;
 import org.example.dto.UserDTO;
 import org.example.entity.RetroBoardHistory;
+import org.example.entity.RetroCard;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,11 +12,12 @@ import java.util.List;
 @Component
 public class RetroBoardHistoryConverter {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final RetroCardConverter retroCardConverter;
+    private final ObjectMapper objectMapper;
 
-    public RetroBoardHistoryConverter(RetroCardConverter retroCardConverter) {
+    public RetroBoardHistoryConverter(RetroCardConverter retroCardConverter, ObjectMapper objectMapper) {
         this.retroCardConverter = retroCardConverter;
+        this.objectMapper = objectMapper;
     }
 
     public RetroBoardHistoryDTO toDTO(RetroBoardHistory entity) {
@@ -25,14 +26,21 @@ public class RetroBoardHistoryConverter {
         dto.setDeletedAt(entity.getDeletedAt());
 
         try {
-            List<RetroCardDTO> cards = objectMapper.readValue(entity.getCardsJson(), 
-                objectMapper.getTypeFactory().constructCollectionType(List.class, RetroCardDTO.class));
-            dto.setCards(cards);
+            // 检查 cardsJson 是否为空
+            if (entity.getCardsJson() != null && !entity.getCardsJson().isEmpty()) {
+                List<RetroCard> cards = objectMapper.readValue(entity.getCardsJson(),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, RetroCard.class));
+                dto.setCards(retroCardConverter.toDTOList(cards));
+            }
 
-            UserDTO deletedBy = objectMapper.readValue(entity.getDeletedBy(), UserDTO.class);
-            dto.setDeletedBy(deletedBy);
+            // 检查 deletedBy 是否为空
+            if (entity.getDeletedBy() != null && !entity.getDeletedBy().isEmpty()) {
+                UserDTO deletedBy = objectMapper.readValue(entity.getDeletedBy(), UserDTO.class);
+                dto.setDeletedBy(deletedBy);
+            }
         } catch (Exception e) {
-            // 处理异常
+            // 记录异常，但不抛出
+            e.printStackTrace();
         }
 
         return dto;
@@ -44,13 +52,18 @@ public class RetroBoardHistoryConverter {
         entity.setDeletedAt(dto.getDeletedAt());
 
         try {
-            String cardsJson = objectMapper.writeValueAsString(dto.getCards());
-            entity.setCardsJson(cardsJson);
+            if (dto.getCards() != null) {
+                String cardsJson = objectMapper.writeValueAsString(dto.getCards());
+                entity.setCardsJson(cardsJson);
+            }
 
-            String deletedByJson = objectMapper.writeValueAsString(dto.getDeletedBy());
-            entity.setDeletedBy(deletedByJson);
+            if (dto.getDeletedBy() != null) {
+                String deletedByJson = objectMapper.writeValueAsString(dto.getDeletedBy());
+                entity.setDeletedBy(deletedByJson);
+            }
         } catch (Exception e) {
-            // 处理异常
+            // 记录异常，但不抛出
+            e.printStackTrace();
         }
 
         return entity;

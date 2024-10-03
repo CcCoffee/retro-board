@@ -19,7 +19,7 @@ public class RetroCardConverter {
 		dto.setId(entity.getId());
 		dto.setType(entity.getType());
 		dto.setContent(entity.getContent());
-		dto.setAnonymous(entity.isAnonymous());
+		dto.setIsAnonymous(entity.getIsAnonymous());
 		dto.setCreatedAt(entity.getCreatedAt());
 
 		try {
@@ -48,7 +48,7 @@ public class RetroCardConverter {
 		entity.setId(dto.getId());
 		entity.setType(dto.getType());
 		entity.setContent(dto.getContent());
-		entity.setAnonymous(dto.isAnonymous());
+		entity.setIsAnonymous(dto.getIsAnonymous());
 		entity.setCreatedAt(dto.getCreatedAt());
 
 		try {

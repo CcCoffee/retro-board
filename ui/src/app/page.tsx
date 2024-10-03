@@ -165,7 +165,7 @@ export default function RetroBoard() {
     const cardToDelete = cards.find(card => card.id === cardId);
 
     if (!currentUser || !cardToDelete || (cardToDelete.author.id !== currentUser.id && !cardToDelete.isAnonymous)) {
-      showToast.error("您没有权限删除这张卡片。");
+      showToast.error("You do not have permission to delete this card.");
       return;
     }
 
@@ -173,13 +173,13 @@ export default function RetroBoard() {
       const updatedCards = cards.filter(card => card.id !== cardId);
       await retroService.deleteCard(cardId);
       setCards(updatedCards);
-      showToast.success("卡片删除成功。");
+      showToast.success("Card deleted successfully.");
     } catch (error) {
-      console.error("删除卡片失败:", error);
-      showToast.error("删除卡片失败。请重试。");
+      console.error("Failed to delete card:", error);
+      showToast.error("Failed to delete card. Please try again.");
     }
   }
-
+  
   const handleCardLike = async (cardId: number) => {
     if (!user) return
     try {
@@ -196,14 +196,14 @@ export default function RetroBoard() {
       })
       const updatedCard = updatedCards.find(card => card.id === cardId)
       if (!updatedCard) {
-        throw new Error("无法找到要更新的卡片")
+        throw new Error("Cannot find the card to update")
       }
       await retroService.updateCard(updatedCard)
       setCards(updatedCards)
-      showToast.success("点赞状态已更新。")
+      showToast.success("Like status updated.")
     } catch (error) {
-      console.error("更新点赞状态失败:", error)
-      showToast.error("更新点赞状态失败。请重试。")
+      console.error("Failed to update like status:", error)
+      showToast.error("Failed to update like status. Please try again.")
     }
   }
 
@@ -450,7 +450,12 @@ export default function RetroBoard() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <Button variant="outline" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="bg-white text-purple-500">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+                className="bg-white text-purple-500"
+                disabled={isHistoryMode}
+              >
                 {isSidebarOpen ? <ChevronRightIcon /> : <ChevronLeftIcon />}
               </Button>
             </div>
@@ -572,7 +577,7 @@ export default function RetroBoard() {
                                   </Tooltip>
                                 </TooltipProvider>
                               </div>
-                              {!isHistoryMode && user && (card.author.id === user.id || card.isAnonymous) && (
+                              {!isHistoryMode && user && (card.author?.id === user.id || card.isAnonymous) && (
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -599,7 +604,7 @@ export default function RetroBoard() {
                 </div>
               )}
             </ScrollArea>
-            {isSidebarOpen && (
+            {isSidebarOpen && !isHistoryMode && (
               <ScrollArea className="w-[300px] pr-4">
                 <h3 className="text-lg font-bold mb-2 font-heading">Action Items</h3>
                 <div className="mb-4 px-1">

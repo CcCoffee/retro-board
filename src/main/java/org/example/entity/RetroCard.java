@@ -41,12 +41,12 @@ public class RetroCard {
         this.content = content;
     }
 
-    public boolean isAnonymous() {
+    public boolean getIsAnonymous() {
         return isAnonymous;
     }
 
-    public void setAnonymous(boolean anonymous) {
-        isAnonymous = anonymous;
+    public void setIsAnonymous(boolean isAnonymous) {
+        this.isAnonymous = isAnonymous;
     }
 
     public String getAuthorJson() {
