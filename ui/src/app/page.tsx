@@ -363,25 +363,32 @@ export default function RetroBoard() {
                   <DialogHeader>
                     <DialogTitle>Retro Board History</DialogTitle>
                     <DialogDescription>
-                      Select a history to view
+                      Select a history to view past retro boards
                     </DialogDescription>
                   </DialogHeader>
                   <ScrollArea className="h-[300px] mt-4">
-                    <div className="flex justify-between px-4 py-2 font-semibold">
-                      <span>Date</span>
-                      <span>Deleted By</span>
-                    </div>
-                    {histories.map((history) => (
-                      <Button
-                        key={history.id}
-                        variant="ghost"
-                        className="w-full justify-between"
-                        onClick={() => loadHistoryById(history.id)}
-                      >
-                        <span>{format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm")}</span>
-                        <span className="text-right">{history.deletedBy}</span>
-                      </Button>
-                    ))}
+                    {histories.length === 0 ? (
+                      <div className="text-center py-4 text-gray-500">
+                        No history records found
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex justify-between px-4 py-2 font-semibold border-b">
+                          <span>Date</span>
+                          <span>Deleted By</span>
+                        </div>
+                        {histories.map((history) => (
+                          <div
+                            key={history.id}
+                            className="flex justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => loadHistoryById(history.id)}
+                          >
+                            <span>{format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm")}</span>
+                            <span>{history.deletedBy}</span>
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </ScrollArea>
                 </DialogContent>
               </Dialog>
