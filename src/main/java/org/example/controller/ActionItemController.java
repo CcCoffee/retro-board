@@ -34,7 +34,7 @@ public class ActionItemController {
 
     @GetMapping
     public List<ActionItemDTO> getAll() {
-        List<ActionItem> actionItems = actionItemService.list();
+        List<ActionItem> actionItems = actionItemService.listOrderByIdDesc();
         return actionItemConverter.toDTOList(actionItems);
     }
 
