@@ -102,6 +102,7 @@ export default function RetroBoard() {
   const [currentHistoryDate, setCurrentHistoryDate] = useState<string | null>(null)
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
 
   // 在组件内部添加这个辅助函数
   const getLocalEndOfDay = (date: Date) => {
@@ -663,7 +664,7 @@ export default function RetroBoard() {
                     </PopoverContent>
                   </Popover>
                   <Label htmlFor="dueDate" className="mt-2">Due Date</Label>
-                  <Popover>
+                  <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                     <PopoverTrigger asChild>
                       <Button id="dueDate" variant="outline" className="w-full justify-start text-left font-normal">
                         <CalendarIcon className="mr-2 h-4 w-4" />
@@ -681,6 +682,7 @@ export default function RetroBoard() {
                           } else {
                             setNewActionItem({ ...newActionItem, dueDate: '' });
                           }
+                          setIsDatePickerOpen(false); // 选择日期后关闭日期选择器
                         }}
                         disabled={(date) => isBefore(date, startOfDay(new Date()))}
                         initialFocus
