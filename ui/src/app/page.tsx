@@ -14,7 +14,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PencilIcon, TrashIcon } from "lucide-react"
-import { format, isBefore, startOfDay } from "date-fns"
+import { format, isBefore, startOfDay, parseISO, endOfDay, setHours, setMinutes, setSeconds, setMilliseconds } from "date-fns"
+import { formatInTimeZone } from 'date-fns-tz'
 import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -71,6 +72,10 @@ const users: User[] = [
   { id: "E005", name: "钱七", avatar: "/E005.svg?height=32&width=32", email: "qianqi@example.com" },
 ]
 
+const formatLocalTime = (dateString: string) => {
+  return format(parseISO(dateString + "Z"), 'yyyy-MM-dd HH:mm')
+}
+
 export default function RetroBoard() {
   const [isLoading, setIsLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -97,6 +102,11 @@ export default function RetroBoard() {
   const [currentHistoryDate, setCurrentHistoryDate] = useState<string | null>(null)
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+
+  // 在组件内部添加这个辅助函数
+  const getLocalEndOfDay = (date: Date) => {
+    return setMilliseconds(setSeconds(setMinutes(setHours(date, 23), 59), 59), 999);
+  }
 
   useEffect(() => {
     const checkLoginStatus = () => {
@@ -594,7 +604,7 @@ export default function RetroBoard() {
                           <div className="px-4 pb-2">
                             <div className="flex justify-between text-xs text-gray-400">
                               <span>{card.isAnonymous ? "Anonymous" : card.author.name}</span>
-                              <span>{format(new Date(card.createdAt), "yyyy-MM-dd HH:mm")}</span>
+                              <span>{formatLocalTime(card.createdAt)}</span>
                             </div>
                           </div>
                         </Card>
@@ -657,14 +667,21 @@ export default function RetroBoard() {
                     <PopoverTrigger asChild>
                       <Button id="dueDate" variant="outline" className="w-full justify-start text-left font-normal">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {newActionItem.dueDate ? format(new Date(newActionItem.dueDate), "yyyy-MM-dd") : <span>Pick a date</span>}
+                        {newActionItem.dueDate ? formatLocalTime(newActionItem.dueDate) : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
                         selected={newActionItem.dueDate ? new Date(newActionItem.dueDate) : undefined}
-                        onSelect={(date: Date | undefined) => setNewActionItem({ ...newActionItem, dueDate: date?.toISOString() || '' })}
+                        onSelect={(date: Date | undefined) => {
+                          if (date) {
+                            const localEndOfDay = getLocalEndOfDay(date);
+                            setNewActionItem({ ...newActionItem, dueDate: localEndOfDay.toISOString() });
+                          } else {
+                            setNewActionItem({ ...newActionItem, dueDate: '' });
+                          }
+                        }}
                         disabled={(date) => isBefore(date, startOfDay(new Date()))}
                         initialFocus
                       />
@@ -711,7 +728,7 @@ export default function RetroBoard() {
                           </span>
                           <span className="text-xs text-muted-foreground">|</span>
                           <span className="text-xs text-muted-foreground truncate">
-                            {item.dueDate ? format(new Date(item.dueDate), "yyyy-MM-dd") : 'No due date'}
+                            {item.dueDate ? item.dueDate : 'No due date'}
                           </span>
                         </div>
                         <div className="flex">
