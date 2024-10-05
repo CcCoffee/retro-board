@@ -4,28 +4,14 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PencilIcon, TrashIcon } from "lucide-react"
-import { format, isBefore, startOfDay, parseISO, setHours, setMinutes, setSeconds, setMilliseconds } from "date-fns"
+import { ChevronLeftIcon, ChevronRightIcon, HeartIcon, TrashIcon } from "lucide-react"
+import { format, parseISO } from "date-fns"
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "@/lib/utils"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +20,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Loader2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -46,16 +31,9 @@ import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
 import { User, RetroCard, ActionItem, RetroBoardHistory } from "@/types/retro"
 import { showToast } from "@/utils/toast"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import { HistoryIcon } from "lucide-react"
 import ActionItemSidebar from '@/components/ActionItemSidebar'
+import HistoryDialog from '@/components/HistoryDialog'
 
 const typesInfo = [
   { id: "good", title: "Good", color: "bg-green-100", indicatorColor: "bg-green-300" },
@@ -89,25 +67,13 @@ export default function RetroBoard() {
   })
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [actionItems, setActionItems] = useState<ActionItem[]>([])
-  const [newActionItem, setNewActionItem] = useState<Omit<ActionItem, 'id' | 'createdAt'>>({
-    assignee: { id: "", name: "", avatar: "", email: "" },
-    dueDate: "",
-    content: ""
-  })
   const [editingActionItem, setEditingActionItem] = useState<ActionItem | null>(null)
-  const [openAssignee, setOpenAssignee] = useState(false)
   const router = useRouter()
   const [histories, setHistories] = useState<RetroBoardHistory[]>([])
   const [isHistoryMode, setIsHistoryMode] = useState(false)
   const [currentHistoryDate, setCurrentHistoryDate] = useState<string | null>(null)
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
-
-  // 在组件内部添加这个辅助函数
-  const getLocalEndOfDay = (date: Date) => {
-    return setMilliseconds(setSeconds(setMinutes(setHours(date, 23), 59), 59), 999);
-  }
 
   useEffect(() => {
     const checkLoginStatus = () => {
@@ -120,7 +86,7 @@ export default function RetroBoard() {
           loadData()
         }
       } else {
-        router.push("/login") // 如果未登录,重定向到登录页面
+        router.push("/login")
       }
       setIsLoading(false)
     }
@@ -141,14 +107,7 @@ export default function RetroBoard() {
     }
   }
 
-  const isActionItemValid = newActionItem.assignee.id && newActionItem.content.trim() !== ""
-
   const isSubmitEnabled = newCard.content.trim() !== ""
-  const isActionItemSubmitEnabled = isActionItemValid
-
-  // 计算 action items 的摘要信息
-  const totalActionItems = actionItems.length
-  const overdueTasks = actionItems.filter(item => !!item.dueDate).filter(item => new Date(item.dueDate) < startOfDay(new Date())).length
 
   const handleCardSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
@@ -235,11 +194,6 @@ export default function RetroBoard() {
       }
       const updatedActionItems = await retroService.getActionItems()
       setActionItems(updatedActionItems)
-      setNewActionItem({ 
-        assignee: { id: "", name: "", avatar: "", email: "" }, 
-        dueDate: "", 
-        content: "" 
-      })
       setEditingActionItem(null)
       showToast.success(editingActionItem ? "Action item updated." : "New action item added.")
     } catch (error) {
@@ -261,11 +215,6 @@ export default function RetroBoard() {
   }
 
   const handleActionItemEdit = (item: ActionItem) => {
-    setNewActionItem({
-      assignee: item.assignee,
-      dueDate: item.dueDate,
-      content: item.content
-    })
     setEditingActionItem(item)
   }
 
@@ -303,7 +252,7 @@ export default function RetroBoard() {
     try {
       const loadedHistories = await retroService.getAllHistory()
       setHistories(loadedHistories)
-      setIsHistoryDialogOpen(true) // Open the dialog after loading histories
+      setIsHistoryDialogOpen(true)
     } catch (error) {
       console.error("Failed to load histories:", error)
       showToast.error("Failed to load histories. Please try again later.")
@@ -317,7 +266,7 @@ export default function RetroBoard() {
       setCards(history.cards || [])
       setCurrentHistoryDate(format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm"))
       setIsHistoryMode(true)
-      setIsHistoryDialogOpen(false) // Close the dialog after loading history
+      setIsHistoryDialogOpen(false)
     } catch (error) {
       console.error("Failed to load history:", error)
       showToast.error("Failed to load history. Please try again later.")
@@ -329,7 +278,7 @@ export default function RetroBoard() {
   const exitHistoryMode = () => {
     setIsHistoryMode(false)
     setCurrentHistoryDate(null)
-    loadData() // This should reset the cards to the current state
+    loadData()
   }
 
   if (isLoading) {
@@ -376,45 +325,15 @@ export default function RetroBoard() {
               <h1 className="text-2xl font-bold font-heading text-white">Retro Board</h1>
             </div>
             <div className="flex items-center space-x-4 relative z-10">
-              <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white" onClick={loadHistories}>
-                    <HistoryIcon className="h-5 w-5" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Retro Board History</DialogTitle>
-                    <DialogDescription>
-                      Select a history to view past retro boards
-                    </DialogDescription>
-                  </DialogHeader>
-                  <ScrollArea className="h-[300px] mt-4">
-                    {histories.length === 0 ? (
-                      <div className="text-center py-4 text-gray-500">
-                        No history records found
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex justify-between px-4 py-2 font-semibold border-b">
-                          <span>Date</span>
-                          <span>Deleted By</span>
-                        </div>
-                        {histories.map((history) => (
-                          <div
-                            key={history.id}
-                            className="flex justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => loadHistoryById(history.id)}
-                          >
-                            <span>{format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm")}</span>
-                            <span>{history.deletedBy.name}</span>
-                          </div>
-                        ))}
-                      </>
-                    )}
-                  </ScrollArea>
-                </DialogContent>
-              </Dialog>
+              <Button variant="ghost" size="icon" className="text-white" onClick={loadHistories}>
+                <HistoryIcon className="h-5 w-5" />
+              </Button>
+              <HistoryDialog
+                isOpen={isHistoryDialogOpen}
+                onOpenChange={setIsHistoryDialogOpen}
+                histories={histories}
+                onSelectHistory={loadHistoryById}
+              />
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-white">Hello, {user?.name}</span>
                 <DropdownMenu>
