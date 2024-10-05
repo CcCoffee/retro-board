@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { format, parseISO } from "date-fns"
+import { format } from "date-fns"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Loader2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -34,10 +34,6 @@ const users: User[] = [
   { id: "E004", name: "赵六", avatar: "/E004.svg?height=32&width=32", email: "zhaoliu@example.com" },
   { id: "E005", name: "钱七", avatar: "/E005.svg?height=32&width=32", email: "qianqi@example.com" },
 ]
-
-const formatLocalTime = (dateString: string) => {
-  return format(parseISO(dateString + "Z"), 'yyyy-MM-dd HH:mm')
-}
 
 export default function RetroBoard() {
   const [isLoading, setIsLoading] = useState(true)

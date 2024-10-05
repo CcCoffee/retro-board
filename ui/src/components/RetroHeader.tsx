@@ -24,7 +24,7 @@ const RetroHeader: React.FC<RetroHeaderProps> = ({
   onLoadHistories
 }) => {
   return (
-    <div className="relative flex justify-between items-center px-4 py-2 bg-gradient-to-r from-pink-400 to-purple-400 overflow-hidden">
+    <div className="relative flex justify-between items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 overflow-hidden">
       <div className="absolute inset-0 opacity-10">
         <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
           <defs>
