@@ -1,5 +1,6 @@
 package org.example.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,30 +31,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)  // 禁用 CSRF
-            .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess").permitAll()
-                .requestMatchers("/_next/**", "/*.js", "/*.css", "/*.html", "/*.jpg", "/*.png", "/*.gif", "/*.svg", "/favicon.ico").permitAll()
-                .anyRequest().authenticated())
-           .formLogin((form) -> form
-               .loginPage("/login")
-               .loginProcessingUrl("/api/login")
-               .usernameParameter("username")
-               .passwordParameter("password")
-               .successForwardUrl("/loginSuccess")
-               .failureUrl("/loginFail")
-               .permitAll()
-           )
-            .logout((logout) -> logout
-                .logoutUrl("/api/logout")
-                .logoutSuccessUrl("/logoutSuccess")
-                .permitAll())
-            .headers(headers -> headers
-                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)  // 禁用 CSRF
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/", "/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess").permitAll()
+                        .requestMatchers("/_next/**", "/*.js", "/*.css", "/*.html", "/*.jpg", "/*.png", "/*.gif", "/*.svg", "/favicon.ico").permitAll()
+                        .anyRequest().fullyAuthenticated())
+                .formLogin((form) -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/api/login")
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .successForwardUrl("/loginSuccess")
+                        .failureUrl("/loginFail")
+                        .permitAll()
                 )
-            );
-
+                .logout((logout) -> logout
+                        .logoutUrl("/api/logout")
+                        .logoutSuccessUrl("/logoutSuccess")
+                        .permitAll())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("User not authenticated");
+                        })
+                )
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
         return http.build();
     }
 
@@ -69,7 +72,7 @@ public class SecurityConfig {
         return source;
     }
 
-    @Bean   
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

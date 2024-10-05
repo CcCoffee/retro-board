@@ -32,6 +32,7 @@ export const authService = {
     } catch (error) {
       console.error('Logout failed:', error);
       showToast.error("Logout failed, please try again later");
+      localStorage.removeItem("user");
       throw error;
     }
   },
