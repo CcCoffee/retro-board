@@ -29,7 +29,7 @@ const HistoryDialog: React.FC<HistoryDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Retro Board History</DialogTitle>
           <DialogDescription>
-            Select a history to view past retro boards
+            Select a history record to view past retro boards (up to 20 records shown)
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-[300px] mt-4">
@@ -41,6 +41,7 @@ const HistoryDialog: React.FC<HistoryDialogProps> = ({
             <>
               <div className="flex justify-between px-4 py-2 font-semibold border-b">
                 <span>Date</span>
+                <span>Comments</span>
                 <span>Deleted By</span>
               </div>
               {histories.map((history) => (
@@ -50,6 +51,7 @@ const HistoryDialog: React.FC<HistoryDialogProps> = ({
                   onClick={() => onSelectHistory(history.id)}
                 >
                   <span>{format(new Date(history.deletedAt), "yyyy-MM-dd HH:mm")}</span>
+                  <span>{history.cards.length}</span>
                   <span>{history.deletedBy.name}</span>
                 </div>
               ))}
