@@ -26,9 +26,9 @@ public class JsonUtil {
         }
     }
 
-    public String convertCardsToJson(List<RetroCardDTO> cards) {
+    public String convertObjectToJson(Object object) {
         try {
-            return objectMapper.writeValueAsString(cards);
+            return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             // Log the error and return an empty JSON array
             e.printStackTrace();

@@ -12,4 +12,5 @@ public interface RetroCardService {
     RetroCardDTO updateRetroCard(Long id, RetroCardDTO retroCardDTO);
     void deleteRetroCard(Long id);
     RetroCardDTO likeRetroCard(Long id, UserDTO user);
+    void clearBoard(UserDTO deletedBy);
 }

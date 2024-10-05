@@ -34,7 +34,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex items-center justify-center flex-grow min-h-screen bg-gradient-to-r from-blue-500 to-blue-700 overflow-hidden">
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-blue-700 overflow-hidden">
       <div className="absolute inset-0 bg-white/30 backdrop-blur-sm"></div>
       <div className="absolute inset-0 opacity-10">
         <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
@@ -90,6 +90,11 @@ export default function LoginPage() {
           </CardFooter>
         </Card>
       </div>
+      
+      {/* 修改后的页脚 */}
+      <footer className="absolute bottom-0 w-full py-2 text-center text-xs text-white/80">
+        <p>&copy; {new Date().getFullYear()} Retro Board. All rights reserved.</p>
+      </footer>
     </div>
   )
 }

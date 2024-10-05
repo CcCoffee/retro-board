@@ -52,8 +52,10 @@ public class RetroCardConverter {
 		entity.setCreatedAt(dto.getCreatedAt());
 
 		try {
-			String authorJson = objectMapper.writeValueAsString(dto.getAuthor());
-			entity.setAuthorJson(authorJson);
+			if (!dto.getIsAnonymous()) {
+				String authorJson = objectMapper.writeValueAsString(dto.getAuthor());
+				entity.setAuthorJson(authorJson);
+			}
 			String likesJson = objectMapper.writeValueAsString(dto.getLikes());
 			entity.setLikesJson(likesJson);
 		} catch (Exception e) {

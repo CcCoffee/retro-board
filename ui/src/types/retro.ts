@@ -12,7 +12,7 @@ export interface RetroCard {
   isAnonymous: boolean;
   likes: User[]; // 修改这里
   createdAt: string;
-  author: User; // 修改这里
+  author?: User; // 修改这里
 }
 
 export interface ActionItem {

@@ -1,20 +1,32 @@
 package org.example.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.converter.RetroCardConverter;
 import org.example.dto.RetroCardDTO;
 import org.example.dto.UserDTO;
+import org.example.entity.RetroBoardHistory;
 import org.example.entity.RetroCard;
 import org.example.mapper.RetroCardMapper;
+import org.example.service.RetroBoardHistoryService;
 import org.example.service.RetroCardService;
+import org.example.util.JsonUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class RetroCardServiceImpl implements RetroCardService {
+public class RetroCardServiceImpl extends ServiceImpl<RetroCardMapper, RetroCard> implements RetroCardService {
 
     private final RetroCardMapper retroCardMapper;
     private final RetroCardConverter retroCardConverter;
+    @Autowired
+    private RetroBoardHistoryService retroBoardHistoryService;
+    @Autowired
+    private JsonUtil jsonUtil;
 
     public RetroCardServiceImpl(RetroCardMapper retroCardMapper, RetroCardConverter retroCardConverter) {
         this.retroCardMapper = retroCardMapper;
@@ -62,5 +74,20 @@ public class RetroCardServiceImpl implements RetroCardService {
         retroCard = retroCardConverter.toEntity(retroCardDTO);
         retroCardMapper.updateById(retroCard);
         return retroCardConverter.toDTO(retroCard);
+    }
+
+    @Override
+    @Transactional
+    public void clearBoard(UserDTO deletedBy) {
+        List<RetroCard> allCards = list();
+
+        String cardsJson = jsonUtil.convertObjectToJson(allCards);
+        String deletedByJson = jsonUtil.convertObjectToJson(deletedBy);
+        RetroBoardHistory retroBoardHistory = new RetroBoardHistory();
+        retroBoardHistory.setCardsJson(cardsJson);
+        retroBoardHistory.setDeletedBy(deletedByJson);
+        retroBoardHistory.setDeletedAt(LocalDateTime.now());
+        retroBoardHistoryService.save(retroBoardHistory);
+        remove(null);
     }
 }

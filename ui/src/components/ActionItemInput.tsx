@@ -67,7 +67,7 @@ const ActionItemInput: React.FC<ActionItemInputProps> = ({ users, onSubmit, edit
   const isActionItemValid = newActionItem.assignee.id && newActionItem.content.trim() !== ""
 
   return (
-    <div className="mb-4 px-1">
+    <div className="mb-2 px-1">
       <Label htmlFor="assignee">Assignee</Label>
       <Popover open={openAssignee} onOpenChange={setOpenAssignee}>
         <PopoverTrigger asChild>

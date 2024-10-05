@@ -33,9 +33,13 @@ const ActionItemSidebar: React.FC<ActionItemSidebarProps> = ({
         onSubmit={onActionItemSubmit}
         editingActionItem={editingActionItem}
       />
-      <div className="flex justify-between items-center mt-2 text-sm">
-        <span>Total: <Badge variant="secondary">{totalActionItems}</Badge></span>
-        <span>Overdue: <Badge variant="destructive">{overdueTasks}</Badge></span>
+      <div className="flex justify-between items-center my-2 text-sm">
+        <span className="flex items-center">
+          Total: <Badge variant="secondary" className="ml-1">{totalActionItems}</Badge>
+        </span>
+        <span className="flex items-center">
+          Overdue: <Badge variant="destructive" className="ml-1">{overdueTasks}</Badge>
+        </span>
       </div>
       <ActionItemList 
         actionItems={actionItems}

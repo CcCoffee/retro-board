@@ -96,7 +96,7 @@ export default function RetroBoard() {
       try {
         const newCardData: RetroCard = { 
           ...newCard, 
-          author: user,
+          author: newCard.isAnonymous ? undefined : user,
           likes: [], 
           createdAt: new Date().toISOString()
         }
@@ -115,7 +115,7 @@ export default function RetroBoard() {
     const currentUser = authService.getCurrentUser();
     const cardToDelete = cards.find(card => card.id === cardId);
 
-    if (!currentUser || !cardToDelete || (cardToDelete.author.id !== currentUser.id && !cardToDelete.isAnonymous)) {
+    if (!currentUser || !cardToDelete || (cardToDelete.author?.id !== currentUser.id && !cardToDelete.isAnonymous)) {
       showToast.error("You do not have permission to delete this card.");
       return;
     }
@@ -330,7 +330,7 @@ export default function RetroBoard() {
             )}
           </div>
           <div className="flex flex-1 overflow-hidden">
-            <ScrollArea className="flex-1 mr-4">
+            <ScrollArea className="flex-1 mx-4">
               {isLoadingHistory ? (
                 <div className="flex justify-center items-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -364,13 +364,16 @@ export default function RetroBoard() {
               />
             )}
           </div>
-          <div className="h-4"></div>
           <HistoryDialog
             isOpen={isHistoryDialogOpen}
             onOpenChange={setIsHistoryDialogOpen}
             histories={histories}
             onSelectHistory={loadHistoryById}
           />
+          {/* 修改后的页脚 */}
+          <footer className="py-2 text-center text-xs text-gray-500">
+            <p>&copy; {format(new Date(), "yyyy")} Retro Board. All rights reserved.</p>
+          </footer>
         </div>
       )}
     </div>
