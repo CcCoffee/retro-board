@@ -6,7 +6,6 @@ import org.example.mapper.RetroBoardHistoryMapper;
 import org.example.service.RetroBoardHistoryService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service

@@ -14,8 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, HeartIcon, PencilIcon, TrashIcon } from "lucide-react"
-import { format, isBefore, startOfDay, parseISO, endOfDay, setHours, setMinutes, setSeconds, setMilliseconds } from "date-fns"
-import { formatInTimeZone } from 'date-fns-tz'
+import { format, isBefore, startOfDay, parseISO, setHours, setMinutes, setSeconds, setMilliseconds } from "date-fns"
 import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -56,6 +55,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { HistoryIcon } from "lucide-react"
+import ActionItemSidebar from '@/components/ActionItemSidebar'
 
 const typesInfo = [
   { id: "good", title: "Good", color: "bg-green-100", indicatorColor: "bg-green-300" },
@@ -218,36 +218,33 @@ export default function RetroBoard() {
     }
   }
 
-  const handleActionItemSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault()
-    if (isActionItemSubmitEnabled) {
-      try {
-        if (editingActionItem) {
-          const updatedActionItem = {
-            ...editingActionItem,
-            ...newActionItem,
-          }
-          await retroService.updateActionItem(updatedActionItem)
-        } else {
-          const newActionItemData: ActionItem = {
-            ...newActionItem,
-            createdAt: new Date().toISOString()
-          }
-          await retroService.saveActionItem(newActionItemData)
+  const handleActionItemSubmit = async (newActionItem: Omit<ActionItem, 'id' | 'createdAt'>) => {
+    try {
+      if (editingActionItem) {
+        const updatedActionItem = {
+          ...editingActionItem,
+          ...newActionItem,
         }
-        const updatedActionItems = await retroService.getActionItems()
-        setActionItems(updatedActionItems)
-        setNewActionItem({ 
-          assignee: { id: "", name: "", avatar: "", email: "" }, 
-          dueDate: "", 
-          content: "" 
-        })
-        setEditingActionItem(null)
-        showToast.success(editingActionItem ? "Action item updated." : "New action item added.")
-      } catch (error) {
-        console.error(editingActionItem ? "Failed to update action item:" : "Failed to add action item:", error)
-        showToast.error(editingActionItem ? "Failed to update action item. Please try again." : "Failed to add action item. Please try again.")
+        await retroService.updateActionItem(updatedActionItem)
+      } else {
+        const newActionItemData: ActionItem = {
+          ...newActionItem,
+          createdAt: new Date().toISOString()
+        }
+        await retroService.saveActionItem(newActionItemData)
       }
+      const updatedActionItems = await retroService.getActionItems()
+      setActionItems(updatedActionItems)
+      setNewActionItem({ 
+        assignee: { id: "", name: "", avatar: "", email: "" }, 
+        dueDate: "", 
+        content: "" 
+      })
+      setEditingActionItem(null)
+      showToast.success(editingActionItem ? "Action item updated." : "New action item added.")
+    } catch (error) {
+      console.error(editingActionItem ? "Failed to update action item:" : "Failed to add action item:", error)
+      showToast.error(editingActionItem ? "Failed to update action item. Please try again." : "Failed to add action item. Please try again.")
     }
   }
 
@@ -616,136 +613,14 @@ export default function RetroBoard() {
               )}
             </ScrollArea>
             {isSidebarOpen && !isHistoryMode && (
-              <ScrollArea className="w-[300px] pr-4">
-                <h3 className="text-lg font-bold mb-2 font-heading">Action Items</h3>
-                <div className="mb-4 px-1">
-                  <Label htmlFor="assignee">Assignee</Label>
-                  <Popover open={openAssignee} onOpenChange={setOpenAssignee}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={openAssignee}
-                        className="w-full justify-between"
-                      >
-                        {newActionItem.assignee.id
-                          ? `${newActionItem.assignee.name} (${newActionItem.assignee.id})`
-                          : "Select assignee..."}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput placeholder="Search assignee..." />
-                        <CommandList>
-                          <CommandEmpty>No assignee found.</CommandEmpty>
-                          <CommandGroup>
-                            {users.map((user) => (
-                              <CommandItem
-                                key={user.id}
-                                value={`${user.name} ${user.id}`.toLowerCase()}
-                                onSelect={() => {
-                                  setNewActionItem({ ...newActionItem, assignee: user })
-                                  setOpenAssignee(false)
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    newActionItem.assignee.id === user.id ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {user.name} ({user.id})
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <Label htmlFor="dueDate" className="mt-2">Due Date</Label>
-                  <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-                    <PopoverTrigger asChild>
-                      <Button id="dueDate" variant="outline" className="w-full justify-start text-left font-normal">
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {newActionItem.dueDate ? formatLocalTime(newActionItem.dueDate) : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={newActionItem.dueDate ? new Date(newActionItem.dueDate) : undefined}
-                        onSelect={(date: Date | undefined) => {
-                          if (date) {
-                            const localEndOfDay = getLocalEndOfDay(date);
-                            setNewActionItem({ ...newActionItem, dueDate: localEndOfDay.toISOString() });
-                          } else {
-                            setNewActionItem({ ...newActionItem, dueDate: '' });
-                          }
-                          setIsDatePickerOpen(false); // 选择日期后关闭日期选择器
-                        }}
-                        disabled={(date) => isBefore(date, startOfDay(new Date()))}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <Label htmlFor="actionContent" className="mt-2">Action Item</Label>
-                  <Textarea
-                    id="actionContent"
-                    placeholder="Action item content (Enter to submit, Shift + Enter for new line)"
-                    value={newActionItem.content}
-                    onChange={(e) => setNewActionItem({ ...newActionItem, content: e.target.value })}
-                    onKeyDown={handleActionItemKeyPress}
-                    className="mt-2"
-                  />
-                  <Button 
-                    className="w-full mt-2" 
-                    onClick={handleActionItemSubmit} 
-                    disabled={!isActionItemSubmitEnabled}
-                  >
-                    {editingActionItem ? "Update" : "Add"} Action Item
-                  </Button>
-                  <div className="flex justify-between items-center mt-2 text-sm">
-                    <span>Total: <Badge variant="secondary">{totalActionItems}</Badge></span>
-                    <span>Overdue: <Badge variant="destructive">{overdueTasks}</Badge></span>
-                  </div>
-                </div>
-                <div>
-                  {actionItems.map((item) => (
-                    <Card 
-                      key={item.id} 
-                      className={`mb-2 ${
-                        new Date(item.dueDate) < startOfDay(new Date()) 
-                          ? "bg-destructive/10" 
-                          : "bg-yellow-100"
-                      }`}
-                    >
-                      <CardContent className="px-4 pt-2 pb-0">
-                        <p className="whitespace-pre-wrap break-words">{item.content}</p>
-                      </CardContent>
-                      <div className="h-[40px] flex justify-between items-center pl-4 pr-2">
-                        <div className="flex items-center space-x-2 overflow-hidden">
-                          <span className="text-xs text-muted-foreground truncate">
-                            {item.assignee.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground">|</span>
-                          <span className="text-xs text-muted-foreground truncate">
-                            {item.dueDate ? item.dueDate : 'No due date'}
-                          </span>
-                        </div>
-                        <div className="flex">
-                          <Button variant="ghost" size="icon" onClick={() => handleActionItemEdit(item)}>
-                            <PencilIcon className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleActionItemDelete(item.id!)}>
-                            <TrashIcon className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </ScrollArea>
+              <ActionItemSidebar
+                actionItems={actionItems}
+                users={users}
+                onActionItemSubmit={handleActionItemSubmit}
+                onActionItemDelete={handleActionItemDelete}
+                onActionItemEdit={handleActionItemEdit}
+                editingActionItem={editingActionItem}
+              />
             )}
           </div>
           <div className="h-4"></div>

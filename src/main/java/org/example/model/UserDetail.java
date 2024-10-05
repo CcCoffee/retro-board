@@ -1,10 +1,6 @@
 package org.example.model;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-
 import java.io.Serializable;
-import java.util.Collections;
 
 public class UserDetail implements Serializable {
     private String employeeType;
