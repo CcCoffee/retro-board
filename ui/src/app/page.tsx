@@ -288,21 +288,6 @@ export default function RetroBoard() {
     }
   }
 
-  const handleActionItemKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      if (e.shiftKey) {
-        // Shift + Enter 用于换行，不需要特殊处理
-        return;
-      } else {
-        // 仅 Enter 键用于提交
-        e.preventDefault(); // 阻止默认的换行行为
-        if (isActionItemSubmitEnabled) {
-          handleActionItemSubmit();
-        }
-      }
-    }
-  }
-
   const handleClearBoard = async () => {
     try {
       await retroService.clearBoard()

@@ -49,6 +49,21 @@ const ActionItemInput: React.FC<ActionItemInputProps> = ({ users, onSubmit, edit
     })
   }
 
+  const handleActionItemKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      if (e.shiftKey) {
+        // Shift + Enter 用于换行，不需要特殊处理
+        return;
+      } else {
+        // 仅 Enter 键用于提交
+        e.preventDefault(); // 阻止默认的换行行为
+        if (isActionItemValid) {
+          handleSubmit();
+        }
+      }
+    }
+  }
+
   const isActionItemValid = newActionItem.assignee.id && newActionItem.content.trim() !== ""
 
   return (
@@ -129,6 +144,7 @@ const ActionItemInput: React.FC<ActionItemInputProps> = ({ users, onSubmit, edit
         placeholder="Action item content (Enter to submit, Shift + Enter for new line)"
         value={newActionItem.content}
         onChange={(e) => setNewActionItem({ ...newActionItem, content: e.target.value })}
+        onKeyDown={handleActionItemKeyPress}
         className="mt-2"
       />
       <Button 
