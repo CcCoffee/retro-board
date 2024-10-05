@@ -21,7 +21,9 @@ axiosInstance.interceptors.response.use(
       if (error.response.status === 401) {
         authService.logout();
         showToast.error("Your session has expired. Please log in again.");
-        window.location.href = '/login';
+        if (confirm("Your session has expired. Please log in again.")) {
+          window.location.href = '/login';
+        }
       } else {
         // Handle other error status codes
         showToast.error("An error occurred. Please try again later.");
