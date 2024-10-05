@@ -3,27 +3,10 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ChevronLeftIcon, ChevronRightIcon, HeartIcon, TrashIcon } from "lucide-react"
 import { format, parseISO } from "date-fns"
-import * as React from "react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Loader2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import Image from 'next/image'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Separator } from "@/components/ui/separator"
 
@@ -31,9 +14,11 @@ import { authService } from "@/services/authService"
 import { retroService } from "@/services/retroService"
 import { User, RetroCard, ActionItem, RetroBoardHistory } from "@/types/retro"
 import { showToast } from "@/utils/toast"
-import { HistoryIcon } from "lucide-react"
 import ActionItemSidebar from '@/components/ActionItemSidebar'
 import HistoryDialog from '@/components/HistoryDialog'
+import RetroHeader from '@/components/RetroHeader'
+import RetroCardInput from '@/components/RetroCardInput'
+import RetroColumn from '@/components/RetroColumn'
 
 const typesInfo = [
   { id: "good", title: "Good", color: "bg-green-100", indicatorColor: "bg-green-300" },
@@ -231,12 +216,6 @@ export default function RetroBoard() {
     }
   }
 
-  const handleCardKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && isSubmitEnabled) {
-      handleCardSubmit()
-    }
-  }
-
   const handleClearBoard = async () => {
     try {
       await retroService.clearBoard()
@@ -252,7 +231,7 @@ export default function RetroBoard() {
     try {
       const loadedHistories = await retroService.getAllHistory()
       setHistories(loadedHistories)
-      setIsHistoryDialogOpen(true)
+      setIsHistoryDialogOpen(true)  // 直接打开对话框
     } catch (error) {
       console.error("Failed to load histories:", error)
       showToast.error("Failed to load histories. Please try again later.")
@@ -303,83 +282,22 @@ export default function RetroBoard() {
     <div className="min-h-screen bg-background flex flex-col">
       {isLoggedIn && (
         <div className="flex flex-col h-screen">
-          <div className="relative flex justify-between items-center px-4 py-2 bg-gradient-to-r from-pink-400 to-purple-400 overflow-hidden">
-            <div className="absolute inset-0 opacity-10">
-              <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-                <defs>
-                  <pattern id="headerPattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="none" stroke="white" strokeWidth="1"/>
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#headerPattern)" />
-              </svg>
-            </div>
-            <div className="flex items-center space-x-2 relative z-10">
-              <Image
-                src="/favicon.svg"
-                alt="Retro Board Logo"
-                width={32}
-                height={32}
-                className="text-white"
-              />
-              <h1 className="text-2xl font-bold font-heading text-white">Retro Board</h1>
-            </div>
-            <div className="flex items-center space-x-4 relative z-10">
-              <Button variant="ghost" size="icon" className="text-white" onClick={loadHistories}>
-                <HistoryIcon className="h-5 w-5" />
-              </Button>
-              <HistoryDialog
-                isOpen={isHistoryDialogOpen}
-                onOpenChange={setIsHistoryDialogOpen}
-                histories={histories}
-                onSelectHistory={loadHistoryById}
-              />
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-white">Hello, {user?.name}</span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.avatar} alt={user?.name} />
-                        <AvatarFallback>{user?.name?.[0] ?? '?'}</AvatarFallback>
-                      </Avatar>
-                      <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-green-500 border-2 border-white"></span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user?.email ?? 'No email'}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                      Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-                className="bg-white text-purple-500"
-                disabled={isHistoryMode}
-              >
-                {isSidebarOpen ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-              </Button>
-            </div>
-          </div>
+          <RetroHeader
+            user={user}
+            isSidebarOpen={isSidebarOpen}
+            isHistoryMode={isHistoryMode}
+            onLogout={handleLogout}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+            onLoadHistories={loadHistories}
+          />
           <div className="flex justify-between p-4 gap-2 items-center">
-            {isHistoryMode && (
-              <h1 className="text-2xl font-bold font-heading">
-                Retro Board History - {currentHistoryDate}
-              </h1>
-            )}
             {isHistoryMode ? (
-              <Button onClick={exitHistoryMode}>Exit History Mode</Button>
+              <>
+                <h1 className="text-2xl font-bold font-heading">
+                  Retro Board History - {currentHistoryDate}
+                </h1>
+                <Button onClick={exitHistoryMode}>Exit History Mode</Button>
+              </>
             ) : (
               <>
                 <AlertDialog>
@@ -403,36 +321,15 @@ export default function RetroBoard() {
                 
                 <Separator orientation="vertical" className="h-8 mx-2" />
                 
-                <Select value={newCard.type} onValueChange={(value) => setNewCard({ ...newCard, type: value })}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {typesInfo.map((typeInfo) => (
-                      <SelectItem key={typeInfo.id} value={typeInfo.id} className="flex items-center">
-                        <div className={`w-3 h-3 mr-2 ${typeInfo.indicatorColor} inline-block rounded-full`}></div>
-                        <span className="inline">{typeInfo.title}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Input
-                  placeholder="Enter your opinion"
-                  value={newCard.content}
-                  onChange={(e) => setNewCard({ ...newCard, content: e.target.value })}
-                  onKeyPress={handleCardKeyPress}
-                  className="flex-grow min-w-[200px]"
+                <RetroCardInput
+                  newCard={newCard}
+                  onCardTypeChange={(value) => setNewCard({ ...newCard, type: value })}
+                  onCardContentChange={(e) => setNewCard({ ...newCard, content: e.target.value })}
+                  onCardAnonymousChange={(checked) => setNewCard({ ...newCard, isAnonymous: checked })}
+                  onCardSubmit={handleCardSubmit}
+                  isSubmitEnabled={isSubmitEnabled}
+                  typesInfo={typesInfo}
                 />
-                <div className="flex items-center">
-                  <Checkbox
-                    id="anonymous"
-                    checked={newCard.isAnonymous}
-                    onCheckedChange={(checked: boolean) => setNewCard({ ...newCard, isAnonymous: checked })}
-                  />
-                  <label htmlFor="anonymous" className="ml-2 hidden sm:inline">Anonymous</label>
-                </div>
-                <Button onClick={handleCardSubmit} disabled={!isSubmitEnabled}>Submit</Button>
               </>
             )}
           </div>
@@ -445,73 +342,17 @@ export default function RetroBoard() {
               ) : (
                 <div className="grid grid-cols-4 gap-4 h-full">
                   {typesInfo.map((column, index) => (
-                    <div key={column.id} className={`${column.color} p-4 rounded-lg overflow-auto ${index === 0 ? 'ml-4' : ''}`}>
-                      <h3 className="text-lg font-bold mb-2 font-heading">{column.title}</h3>
-                      {(cards || []).filter(card => card.type === column.id).map((card) => (
-                        <Card key={card.id} className="mb-2 relative">
-                          <div className="px-2 pt-0">
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleCardLike(card.id!)}
-                                  className={card.likes.some(like => like.id === user?.id) ? "text-red-500" : ""}
-                                  disabled={isHistoryMode}
-                                >
-                                  <HeartIcon className="h-4 w-4" />
-                                </Button>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <div className="flex -space-x-2 ml-2">
-                                        {card.likes.map((like) => (
-                                          <Avatar key={like.id} className="w-6 h-6 border-2 border-background">
-                                            <AvatarImage src={like.avatar} alt={like.name} />
-                                            <AvatarFallback>{like.name[0]}</AvatarFallback>
-                                          </Avatar>
-                                        ))}
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <div className="flex flex-col">
-                                        {card.likes.map(like => (
-                                          <div key={like.id} className="flex items-center mb-2">
-                                            <Avatar className="w-6 h-6 mr-2">
-                                              <AvatarImage src={like.avatar} alt={like.name} />
-                                              <AvatarFallback className="text-black">{like.name[0] ?? '?'}</AvatarFallback>
-                                            </Avatar>
-                                            <span>{like.name}</span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                              {!isHistoryMode && user && (card.author?.id === user.id || card.isAnonymous) && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleCardDelete(card.id!)}
-                                >
-                                  <TrashIcon className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                          <CardContent className="pl-4 pr-4 pt-0 pb-1">
-                            <p className="whitespace-pre-wrap break-words">{card.content}</p>
-                          </CardContent>
-                          <div className="px-4 pb-2">
-                            <div className="flex justify-between text-xs text-gray-400">
-                              <span>{card.isAnonymous ? "Anonymous" : card.author.name}</span>
-                              <span>{formatLocalTime(card.createdAt)}</span>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
+                    <RetroColumn
+                      key={column.id}
+                      id={column.id}
+                      title={column.title}
+                      color={column.color}
+                      cards={cards.filter(card => card.type === column.id)}
+                      onCardLike={handleCardLike}
+                      onCardDelete={handleCardDelete}
+                      isHistoryMode={isHistoryMode}
+                      currentUserId={user?.id}
+                    />
                   ))}
                 </div>
               )}
@@ -528,6 +369,12 @@ export default function RetroBoard() {
             )}
           </div>
           <div className="h-4"></div>
+          <HistoryDialog
+            isOpen={isHistoryDialogOpen}
+            onOpenChange={setIsHistoryDialogOpen}
+            histories={histories}
+            onSelectHistory={loadHistoryById}
+          />
         </div>
       )}
     </div>
