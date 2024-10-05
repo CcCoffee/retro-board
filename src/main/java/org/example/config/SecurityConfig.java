@@ -1,12 +1,11 @@
 package org.example.config;
 
-import org.example.model.UserDetail;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,17 +13,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.security.config.Customizer;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,10 +32,10 @@ public class SecurityConfig {
         http
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)  // 禁用 CSRF
-                .authorizeHttpRequests(request-> request.anyRequest().permitAll())
-        //    .authorizeHttpRequests((requests) -> requests
-            //    .requestMatchers("/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess", "/api/logout").permitAll()
-            //    .anyRequest().authenticated())
+            .authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess").permitAll()
+                .requestMatchers("/_next/**", "/*.js", "/*.css", "/*.html", "/*.jpg", "/*.png", "/*.gif", "/*.svg", "/favicon.ico").permitAll()
+                .anyRequest().authenticated())
            .formLogin((form) -> form
                .loginPage("/login")
                .loginProcessingUrl("/api/login")
@@ -56,8 +50,7 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/logoutSuccess")
                 .permitAll())
             .headers(headers -> headers
-                .frameOptions(frameOptions -> frameOptions
-                    .sameOrigin()
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin
                 )
             );
 

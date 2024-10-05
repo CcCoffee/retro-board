@@ -80,7 +80,7 @@ const RetroCardComponent: React.FC<RetroCardProps> = ({
       </CardContent>
       <div className="px-4 pb-2">
         <div className="flex justify-between text-xs text-gray-400">
-          <span>{card.isAnonymous ? "Anonymous" : card.author.name}</span>
+          <span>{card.isAnonymous ? "Anonymous" : card.author?.name}</span>
           <span>{formatLocalTime(card.createdAt)}</span>
         </div>
       </div>

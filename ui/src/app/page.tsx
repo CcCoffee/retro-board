@@ -337,7 +337,7 @@ export default function RetroBoard() {
                 </div>
               ) : (
                 <div className="grid grid-cols-4 gap-4 h-full">
-                  {typesInfo.map((column, index) => (
+                  {typesInfo.map((column) => (
                     <RetroColumn
                       key={column.id}
                       id={column.id}
