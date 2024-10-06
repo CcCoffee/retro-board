@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.ldap.filter.AndFilter;
+import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NamingException;
@@ -19,21 +21,26 @@ public class LdapService {
     @Autowired
     private LdapContextSource ldapContextSource;
 
-    public List<UserDetail> getAllUsers() {
-//        List<Object> mail = new LdapTemplate(ldapContextSource).search("uid=E001,ou=people", "(objectclass=person)", (AttributesMapper<Object>) attributes -> attributes.get("mail").get());
-        return ldapTemplate.search(
-            "ou=people",
-            "(objectclass=person)",
+    public UserDetail getUserByEmployeeNumber(String employeeNumber) {
+        AndFilter filter = new AndFilter();
+        filter.and(new EqualsFilter("objectclass", "person"));
+        filter.and(new EqualsFilter("employeeNumber", employeeNumber));
+        System.out.println(filter.encode());
+        List<UserDetail> userDetailList = ldapTemplate.search(
+                "ou=people",
+                filter.encode(),
                 (AttributesMapper<UserDetail>) attrs -> new UserDetail(
-                    (String) attrs.get("employeeType").get(),
-                    (String) attrs.get("employeeNumber").get(),
-                    (String) attrs.get("displayName").get(),
-                    (String) attrs.get("givenName").get(),
-                    (String) attrs.get("sn").get(),
-                    (String) attrs.get("mail").get(),
-                    null,  // 密码字段设为null，因为LDAP通常不会返回密码
-                    null   // 角色字段设为null，如果需要可以后续处理
+                        (String) attrs.get("employeeType").get(),
+                        (String) attrs.get("employeeNumber").get(),
+                        (String) attrs.get("displayName").get(),
+                        null,
+                        List.of(),
+                        (String) attrs.get("mail").get()
                 )
         );
+        if (userDetailList.isEmpty()) {
+            return null;
+        }
+        return userDetailList.get(0);
     }
 }

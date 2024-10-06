@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { HeartIcon, TrashIcon } from "lucide-react";
 import { RetroCard } from '@/types/retro';
 import { formatLocalTime } from '@/utils/dateUtils';
+import { getAvatarUrl } from '@/utils/imageUtils';
 
 interface RetroCardProps {
   card: RetroCard;
@@ -42,7 +43,7 @@ const RetroCardComponent: React.FC<RetroCardProps> = ({
                   <div className="flex -space-x-2 ml-2">
                     {card.likes.map((like) => (
                       <Avatar key={like.id} className="w-6 h-6 border-2 border-background">
-                        <AvatarImage src={like.avatar} alt={like.name} />
+                        <AvatarImage src={getAvatarUrl(like.id)} alt={like.name} />
                         <AvatarFallback>{like.name[0]}</AvatarFallback>
                       </Avatar>
                     ))}
@@ -53,7 +54,7 @@ const RetroCardComponent: React.FC<RetroCardProps> = ({
                     {card.likes.map(like => (
                       <div key={like.id} className="flex items-center mb-2">
                         <Avatar className="w-6 h-6 mr-2">
-                          <AvatarImage src={like.avatar} alt={like.name} />
+                          <AvatarImage src={getAvatarUrl(like.id)} alt={like.name} />
                           <AvatarFallback className="text-black">{like.name[0] ?? '?'}</AvatarFallback>
                         </Avatar>
                         <span>{like.name}</span>

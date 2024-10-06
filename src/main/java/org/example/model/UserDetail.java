@@ -3,43 +3,23 @@ package org.example.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 public class UserDetail implements UserDetails {
     private String employeeType;
-    private String employeeId;
-    private String displayName;
-    private String firstName;
-    private String lastName;
-    private String avatar;
-    private String email;
+    private String employeeNumber;
+    private String username;
+    private String password;
+    private String mail;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetail(String employeeType, String employeeId, String displayName, String firstName, String lastName, String email, String password, String role) {
+    public UserDetail(String employeeType, String employeeNumber, String username, String password, Collection<? extends GrantedAuthority> authorities, String mail) {
         this.employeeType = employeeType;
-        this.employeeId = employeeId;
-        this.displayName = displayName;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getAvatar() {
-        return "https://avatars.example.com/" + employeeId + ".png";
-    }
-
-    public String getDisplayName() {
-        return displayName;
+        this.employeeNumber = employeeNumber;
+        this.username = username;
+        this.password = password;
+        this.authorities = authorities;
+        this.mail = mail;
     }
 
     public String getEmployeeType() {
@@ -50,54 +30,46 @@ public class UserDetail implements UserDetails {
         this.employeeType = employeeType;
     }
 
-    public String getEmployeeId() {
-        return employeeId;
+    public String getEmployeeNumber() {
+        return employeeNumber;
     }
 
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
-        this.authorities = authorities;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
-
-    @Override
-    public String getPassword() {
-        return "";
+    public void setEmployeeNumber(String employeeNumber) {
+        this.employeeNumber = employeeNumber;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
     }
 }

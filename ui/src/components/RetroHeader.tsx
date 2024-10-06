@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { HistoryIcon, ChevronRightIcon, ChevronLeftIcon } from "lucide-react";
 import { User } from "@/types/retro";
+import { getAvatarUrl } from "@/utils/imageUtils";
 
 interface RetroHeaderProps {
   user: User | null;
@@ -52,7 +53,7 @@ const RetroHeader: React.FC<RetroHeaderProps> = ({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.avatar} alt={user?.name} />
+                  <AvatarImage src={getAvatarUrl(user?.id ?? '')} alt={user?.name} />
                   <AvatarFallback>{user?.name?.[0] ?? '?'}</AvatarFallback>
                 </Avatar>
               </Button>

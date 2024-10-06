@@ -29,11 +29,11 @@ const typesInfo = [
 ]
 
 const users: User[] = [
-  { id: "E001", name: "张三", avatar: "/E001.svg?height=32&width=32", email: "zhangsan@example.com" },
-  { id: "E002", name: "李四", avatar: "/E002.svg?height=32&width=32", email: "lisi@example.com" },
-  { id: "E003", name: "王五", avatar: "/E003.svg?height=32&width=32", email: "wangwu@example.com" },
-  { id: "E004", name: "赵六", avatar: "/E004.svg?height=32&width=32", email: "zhaoliu@example.com" },
-  { id: "E005", name: "钱七", avatar: "/E005.svg?height=32&width=32", email: "qianqi@example.com" },
+  { id: "E001", name: "张三", email: "zhangsan@example.com" },
+  { id: "E002", name: "李四", email: "lisi@example.com" },
+  { id: "E003", name: "王五", email: "wangwu@example.com" },
+  { id: "E004", name: "赵六", email: "zhaoliu@example.com" },
+  { id: "E005", name: "钱七", email: "qianqi@example.com" },
 ]
 
 export default function RetroBoard() {

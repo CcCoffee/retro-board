@@ -3,17 +3,15 @@ package org.example.dto;
 public class UserDTO {
     private String id;
     private String name;
-    private String avatar;
     private String email;
 
     public UserDTO() {
     }
 
     // 构造函数
-    public UserDTO(String id, String name, String avatar, String email) {
+    public UserDTO(String id, String name, String email) {
         this.id = id;
         this.name = name;
-        this.avatar = avatar;
         this.email = email;
     }
 
@@ -32,14 +30,6 @@ public class UserDTO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
     }
 
     public String getEmail() {

@@ -18,7 +18,7 @@ interface ActionItemInputProps {
 
 const ActionItemInput: React.FC<ActionItemInputProps> = ({ users, onSubmit, editingActionItem }) => {
   const [newActionItem, setNewActionItem] = useState<Omit<ActionItem, 'id' | 'createdAt'>>({
-    assignee: { id: "", name: "", avatar: "", email: "" },
+    assignee: { id: "", name: "", email: "" },
     dueDate: "",
     content: ""
   })
@@ -42,7 +42,7 @@ const ActionItemInput: React.FC<ActionItemInputProps> = ({ users, onSubmit, edit
   const handleSubmit = () => {
     onSubmit(newActionItem)
     setNewActionItem({
-      assignee: { id: "", name: "", avatar: "", email: "" },
+      assignee: { id: "", name: "", email: "" },
       dueDate: "",
       content: ""
     })

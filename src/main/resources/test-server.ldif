@@ -39,7 +39,7 @@ objectclass: inetOrgPerson
 cn: 张三
 sn: 张
 uid: E001
-userPassword: password123
+userPassword: 1234
 mail: zhangsan@example.com
 displayName: 张三
 employeeType: EMPLOYEE
@@ -54,7 +54,7 @@ objectclass: inetOrgPerson
 cn: 李四
 sn: 李
 uid: E002
-userPassword: password123
+userPassword: 1234
 mail: lisi@example.com
 displayName: 李四
 employeeType: EMPLOYEE
@@ -69,7 +69,7 @@ objectclass: inetOrgPerson
 cn: 王五
 sn: 王
 uid: E003
-userPassword: {bcrypt}$2a$10$c6bSeWPhg06xB1lvmaWNNe4NROmZiSpYhlocU/98HNr2MhIOiSt36
+userPassword: 1234
 mail: wangwu@example.com
 displayName: 王五
 employeeType: EMPLOYEE
@@ -84,7 +84,7 @@ objectclass: inetOrgPerson
 cn: 赵六
 sn: 赵
 uid: E004
-userPassword: {bcrypt}$2a$10$c6bSeWPhg06xB1lvmaWNNe4NROmZiSpYhlocU/98HNr2MhIOiSt36
+userPassword: 1234
 mail: zhaoliu@example.com
 displayName: 赵六
 employeeType: EMPLOYEE
@@ -99,7 +99,7 @@ objectclass: inetOrgPerson
 cn: 钱七
 sn: 钱
 uid: E005
-userPassword: {bcrypt}$2a$10$c6bSeWPhg06xB1lvmaWNNe4NROmZiSpYhlocU/98HNr2MhIOiSt36
+userPassword: 1234
 mail: qianqi@example.com
 displayName: 钱七
 employeeType: EMPLOYEE

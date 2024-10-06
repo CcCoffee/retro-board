@@ -119,7 +119,7 @@ public class SecurityConfig {
     public LdapAuthenticationProvider ldapAuthenticationProvider() {
         BindAuthenticator authenticator = new BindAuthenticator(contextSource());
         authenticator.setUserSearch(
-            new FilterBasedLdapUserSearch("ou=people", "(uid={0})", contextSource()));
+            new FilterBasedLdapUserSearch("ou=people", "(&(objectclass=person)(employeeNumber={0}))", contextSource()));
 
         DefaultLdapAuthoritiesPopulator authoritiesPopulator = 
             new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=groups");
@@ -138,12 +138,10 @@ public class SecurityConfig {
                 UserDetail userDetail = new UserDetail(
                         ctx.getStringAttribute("employeeType"),
                         ctx.getStringAttribute("employeeNumber"),
-                        ctx.getStringAttribute("displayName"),
-                        ctx.getStringAttribute("sn"),
-                        ctx.getStringAttribute("givenName"),
-                        ctx.getStringAttribute("mail"),
-                        details.getPassword(),
-                        null
+                        ctx.getStringAttribute("displayName"), // username
+                        null, // password
+                        details.getAuthorities(),
+                        ctx.getStringAttribute("mail")
                 );
                 userDetail.setAuthorities(details.getAuthorities());
                 return userDetail;
@@ -167,8 +165,8 @@ public class SecurityConfig {
         return new LdapTemplate(contextSource());
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService(ldapTemplate(), contextSource());
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return new CustomUserDetailsService(ldapTemplate(), contextSource());
+//    }
 }
