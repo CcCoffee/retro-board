@@ -46,9 +46,6 @@ const RetroHeader: React.FC<RetroHeaderProps> = ({
         <h1 className="text-2xl font-bold font-heading text-white">Retro Board</h1>
       </div>
       <div className="flex items-center space-x-4 relative z-10">
-        <Button variant="ghost" size="icon" className="text-white" onClick={onLoadHistories}>
-          <HistoryIcon className="h-5 w-5" />
-        </Button>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-white">Hello, {user?.name}</span>
           <DropdownMenu>
@@ -58,7 +55,6 @@ const RetroHeader: React.FC<RetroHeaderProps> = ({
                   <AvatarImage src={user?.avatar} alt={user?.name} />
                   <AvatarFallback>{user?.name?.[0] ?? '?'}</AvatarFallback>
                 </Avatar>
-                <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-green-500 border-2 border-white"></span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -77,10 +73,11 @@ const RetroHeader: React.FC<RetroHeaderProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <Button 
-          variant="ghost" 
+        <Button variant="ghost" size="icon" className="text-white" onClick={onLoadHistories}>
+          <HistoryIcon className="h-5 w-5" />
+        </Button>
+        <Button variant="ghost" size="icon" className="text-white" 
           onClick={onToggleSidebar} 
-          className="text-white hover:bg-blue-600 transition-colors duration-200"
           disabled={isHistoryMode}
         >
           {isSidebarOpen ? (
