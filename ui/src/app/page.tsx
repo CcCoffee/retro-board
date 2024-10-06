@@ -19,6 +19,7 @@ import HistoryDialog from '@/components/HistoryDialog'
 import RetroHeader from '@/components/RetroHeader'
 import RetroCardInput from '@/components/RetroCardInput'
 import RetroColumn from '@/components/RetroColumn'
+import { Footer } from '@/components/Footer'
 
 const typesInfo = [
   { id: "good", title: "Good", color: "bg-green-100", indicatorColor: "bg-green-300" },
@@ -227,7 +228,7 @@ export default function RetroBoard() {
     try {
       const loadedHistories = await retroService.getAllHistory()
       setHistories(loadedHistories)
-      setIsHistoryDialogOpen(true)  // 直接打开对话框
+      setIsHistoryDialogOpen(true)  // 直接���开对话框
     } catch (error) {
       console.error("Failed to load histories:", error)
       showToast.error("Failed to load histories. Please try again later.")
@@ -370,10 +371,7 @@ export default function RetroBoard() {
             histories={histories}
             onSelectHistory={loadHistoryById}
           />
-          {/* 修改后的页脚 */}
-          <footer className="py-2 text-center text-xs text-gray-500">
-            <p>&copy; {format(new Date(), "yyyy")} Retro Board. All rights reserved.</p>
-          </footer>
+          <Footer />
         </div>
       )}
     </div>

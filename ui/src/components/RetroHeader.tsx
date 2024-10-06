@@ -78,12 +78,16 @@ const RetroHeader: React.FC<RetroHeaderProps> = ({
           </DropdownMenu>
         </div>
         <Button 
-          variant="outline" 
+          variant="ghost" 
           onClick={onToggleSidebar} 
-          className="bg-white text-purple-500"
+          className="text-white hover:bg-blue-600 transition-colors duration-200"
           disabled={isHistoryMode}
         >
-          {isSidebarOpen ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          {isSidebarOpen ? (
+            <ChevronRightIcon className="h-5 w-5" />
+          ) : (
+            <ChevronLeftIcon className="h-5 w-5" />
+          )}
         </Button>
       </div>
     </div>
