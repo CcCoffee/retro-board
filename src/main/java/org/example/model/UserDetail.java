@@ -1,8 +1,13 @@
 package org.example.model;
 
-import java.io.Serializable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-public class UserDetail implements Serializable {
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+
+public class UserDetail implements UserDetails {
     private String employeeType;
     private String employeeId;
     private String displayName;
@@ -10,6 +15,7 @@ public class UserDetail implements Serializable {
     private String lastName;
     private String avatar;
     private String email;
+    private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetail(String employeeType, String employeeId, String displayName, String firstName, String lastName, String email, String password, String role) {
         this.employeeType = employeeType;
@@ -70,5 +76,28 @@ public class UserDetail implements Serializable {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+        this.authorities = authorities;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return "";
+    }
+
+    @Override
+    public String getUsername() {
+        return "";
     }
 }

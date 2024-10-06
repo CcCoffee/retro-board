@@ -2,10 +2,12 @@ package org.example.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.example.model.UserDetail;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.config.Customizer;
@@ -13,6 +15,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
@@ -20,12 +25,15 @@ import org.springframework.security.ldap.authentication.LdapAuthenticationProvid
 import org.springframework.security.ldap.authentication.LdapAuthenticator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @Configuration
@@ -40,6 +48,9 @@ public class SecurityConfig {
 
     @Value("${spring.ldap.password}")
     private String ldapPassword;
+
+    @Value("${spring.ldap.base}")
+    private String ldapBase;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -104,27 +115,40 @@ public class SecurityConfig {
         };
     }
 
-    // @Bean
-    // public LdapAuthenticationProvider ldapAuthenticationProvider(LdapContextSource ldapContextSource) {
-    //     BindAuthenticator ldapAuthenticator = new BindAuthenticator(ldapContextSource);
-    //     ldapAuthenticator.setUserDnPatterns(new String[]{"uid={0},ou=people"});
-    //     DefaultLdapAuthoritiesPopulator authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource, "ou=groups,dc=springframework,dc=org");
-    //     authoritiesPopulator.setGroupRoleAttribute("cn");
-    //     return new LdapAuthenticationProvider(ldapAuthenticator, authoritiesPopulator);
-    // }
-
     @Bean
     public LdapAuthenticationProvider ldapAuthenticationProvider() {
-        LdapAuthenticator authenticator = new BindAuthenticator(contextSource());
-        ((BindAuthenticator) authenticator).setUserSearch(
+        BindAuthenticator authenticator = new BindAuthenticator(contextSource());
+        authenticator.setUserSearch(
             new FilterBasedLdapUserSearch("ou=people", "(uid={0})", contextSource()));
 
         DefaultLdapAuthoritiesPopulator authoritiesPopulator = 
             new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=groups");
         authoritiesPopulator.setGroupSearchFilter("member={0}");
+        LdapAuthenticationProvider ldapAuthenticationProvider = new LdapAuthenticationProvider(authenticator, authoritiesPopulator);
+        ldapAuthenticationProvider.setUserDetailsContextMapper(userDetailsContextMapper());
+        return ldapAuthenticationProvider;
+    }
 
-        LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator, authoritiesPopulator);
-        return provider;
+    private UserDetailsContextMapper userDetailsContextMapper() {
+        return new LdapUserDetailsMapper() {
+            @Override
+            public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
+                                                  Collection<? extends GrantedAuthority> authorities) {
+                UserDetails details = super.mapUserFromContext(ctx, username, authorities);
+                UserDetail userDetail = new UserDetail(
+                        ctx.getStringAttribute("employeeType"),
+                        ctx.getStringAttribute("employeeNumber"),
+                        ctx.getStringAttribute("displayName"),
+                        ctx.getStringAttribute("sn"),
+                        ctx.getStringAttribute("givenName"),
+                        ctx.getStringAttribute("mail"),
+                        details.getPassword(),
+                        null
+                );
+                userDetail.setAuthorities(details.getAuthorities());
+                return userDetail;
+            }
+        };
     }
 
     @Bean
@@ -133,7 +157,7 @@ public class SecurityConfig {
         contextSource.setUrl(ldapUrls);
         contextSource.setUserDn(ldapUsername);
         contextSource.setPassword(ldapPassword);
-        contextSource.setBase("dc=springframework,dc=org");
+        contextSource.setBase(ldapBase);
         contextSource.afterPropertiesSet();
         return contextSource;
     }
@@ -141,5 +165,10 @@ public class SecurityConfig {
     @Bean
     public LdapTemplate ldapTemplate() {
         return new LdapTemplate(contextSource());
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new CustomUserDetailsService(ldapTemplate(), contextSource());
     }
 }
