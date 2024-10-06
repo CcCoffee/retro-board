@@ -3,25 +3,24 @@ package org.example.config;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.ldap.authentication.BindAuthenticator;
+import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import org.springframework.security.config.Customizer;
-
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Configuration
@@ -36,6 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/", "/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess").permitAll()
                         .requestMatchers("/_next/**", "/*.js", "/*.css", "/*.html", "/*.jpg", "/*.png", "/*.gif", "/*.svg", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/users").permitAll()
                         .anyRequest().fullyAuthenticated())
                 .formLogin((form) -> form
                         .loginPage("/login")
@@ -56,7 +56,8 @@ public class SecurityConfig {
                             response.getWriter().write("User not authenticated");
                         })
                 )
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .authenticationProvider(ldapAuthenticationProvider(ldapContextSource()));
         return http.build();
     }
 
@@ -78,12 +79,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        User userDetail1 = new User("E001", passwordEncoder.encode("1234"), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-        User userDetail2 = new User("E002", passwordEncoder.encode("1234"), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-        User userDetail3 = new User("E003", passwordEncoder.encode("1234"), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-        User userDetail4 = new User("E004", passwordEncoder.encode("1234"), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-        User userDetail5 = new User("E005", passwordEncoder.encode("1234"), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-        return new InMemoryUserDetailsManager(userDetail1, userDetail2, userDetail3, userDetail4, userDetail5);
+    public LdapAuthenticationProvider ldapAuthenticationProvider(LdapContextSource ldapContextSource) {
+        System.out.println(passwordEncoder().encode("1234"));
+        ldapContextSource.afterPropertiesSet();
+        BindAuthenticator ldapAuthenticator = new BindAuthenticator(ldapContextSource);
+        ldapAuthenticator.setUserDnPatterns(new String[]{"uid={0},ou=people"});
+        DefaultLdapAuthoritiesPopulator authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource, "ou=groups");
+        authoritiesPopulator.setGroupRoleAttribute("cn");
+        return new LdapAuthenticationProvider(ldapAuthenticator, authoritiesPopulator);
+    }
+
+    @Bean
+    public LdapContextSource ldapContextSource() {
+        LdapContextSource contextSource = new LdapContextSource();
+        contextSource.setUrl("ldap://localhost:8389/dc=springframework,dc=org");
+        return contextSource;
+    }
+
+    @Bean
+    public LdapTemplate ldapTemplate() {
+        return new LdapTemplate(ldapContextSource());
     }
 }
