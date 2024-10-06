@@ -4,6 +4,7 @@ import org.example.model.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.stereotype.Service;
 
 import javax.naming.NamingException;
@@ -15,8 +16,11 @@ public class LdapService {
 
     @Autowired
     private LdapTemplate ldapTemplate;
+    @Autowired
+    private LdapContextSource ldapContextSource;
 
     public List<UserDetail> getAllUsers() {
+//        List<Object> mail = new LdapTemplate(ldapContextSource).search("uid=E001,ou=people", "(objectclass=person)", (AttributesMapper<Object>) attributes -> attributes.get("mail").get());
         return ldapTemplate.search(
             "ou=people",
             "(objectclass=person)",

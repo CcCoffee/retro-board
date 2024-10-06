@@ -1,8 +1,11 @@
 package org.example.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.config.Customizer;
@@ -26,6 +29,15 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${spring.ldap.urls}")
+    private String ldapUrls;
+
+    @Value("${spring.ldap.username}")
+    private String ldapUsername;
+
+    @Value("${spring.ldap.password}")
+    private String ldapPassword;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -75,16 +87,25 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // 返回一个不进行加密的 PasswordEncoder
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return rawPassword.toString();
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return rawPassword.toString().equals(encodedPassword);
+            }
+        };
     }
 
     @Bean
     public LdapAuthenticationProvider ldapAuthenticationProvider(LdapContextSource ldapContextSource) {
-        System.out.println(passwordEncoder().encode("1234"));
-        ldapContextSource.afterPropertiesSet();
         BindAuthenticator ldapAuthenticator = new BindAuthenticator(ldapContextSource);
-        ldapAuthenticator.setUserDnPatterns(new String[]{"uid={0},ou=people"});
-        DefaultLdapAuthoritiesPopulator authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource, "ou=groups");
+        ldapAuthenticator.setUserDnPatterns(new String[]{"uid={0},ou=people,dc=springframework,dc=org"});
+        DefaultLdapAuthoritiesPopulator authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource, "ou=groups,dc=springframework,dc=org");
         authoritiesPopulator.setGroupRoleAttribute("cn");
         return new LdapAuthenticationProvider(ldapAuthenticator, authoritiesPopulator);
     }
@@ -92,7 +113,10 @@ public class SecurityConfig {
     @Bean
     public LdapContextSource ldapContextSource() {
         LdapContextSource contextSource = new LdapContextSource();
-        contextSource.setUrl("ldap://localhost:8389/dc=springframework,dc=org");
+        contextSource.setUrl(ldapUrls);
+        contextSource.setUserDn(ldapUsername);
+        contextSource.setPassword(ldapPassword);
+        contextSource.afterPropertiesSet();
         return contextSource;
     }
 

@@ -23,6 +23,9 @@ spring:
       port: 8389
       ldif: classpath:test-server.ldif
       base-dn: dc=springframework,dc=org
+    urls: ldap://localhost:8389/dc=springframework,dc=org
+    username: uid=admin,ou=system,dc=springframework,dc=org
+    password: secret
   main:
     allow-bean-definition-overriding: true
 mybatis-plus:

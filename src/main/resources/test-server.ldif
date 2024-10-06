@@ -4,6 +4,23 @@ objectclass: domain
 objectclass: extensibleObject
 dc: springframework
 
+# 添加一个系统组织单元
+dn: ou=system,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: system
+
+# 添加管理员用户
+dn: uid=admin,ou=system,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: admin
+sn: admin
+uid: admin
+userPassword: secret
+
 dn: ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: organizationalUnit
@@ -22,7 +39,7 @@ objectclass: inetOrgPerson
 cn: 张三
 sn: 张
 uid: E001
-userPassword: $2a$10$SIk2qKIFiDvZCUmIssz7XufXTn6iJqbTfbdnA9NERo3EJ31fKRAmi
+userPassword: password123
 mail: zhangsan@example.com
 displayName: 张三
 employeeType: EMPLOYEE
@@ -37,7 +54,7 @@ objectclass: inetOrgPerson
 cn: 李四
 sn: 李
 uid: E002
-userPassword: {bcrypt}$2a$10$c6bSeWPhg06xB1lvmaWNNe4NROmZiSpYhlocU/98HNr2MhIOiSt36
+userPassword: password123
 mail: lisi@example.com
 displayName: 李四
 employeeType: EMPLOYEE
