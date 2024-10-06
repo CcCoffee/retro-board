@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.security.ldap.authentication.LdapAuthenticator;
+import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -45,10 +47,11 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)  // 禁用 CSRF
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess").permitAll()
-                        .requestMatchers("/_next/**", "/*.js", "/*.css", "/*.html", "/*.jpg", "/*.png", "/*.gif", "/*.svg", "/favicon.ico").permitAll()
-                        .requestMatchers("/api/users").permitAll()
-                        .anyRequest().fullyAuthenticated())
+                        .anyRequest().permitAll())
+//                        .requestMatchers("/", "/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess").permitAll()
+//                        .requestMatchers("/_next/**", "/*.js", "/*.css", "/*.html", "/*.jpg", "/*.png", "/*.gif", "/*.svg", "/favicon.ico").permitAll()
+//                        .requestMatchers("/api/users").permitAll()
+//                        .anyRequest().fullyAuthenticated())
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/api/login")
@@ -69,7 +72,7 @@ public class SecurityConfig {
                         })
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-                .authenticationProvider(ldapAuthenticationProvider(ldapContextSource()));
+                .authenticationProvider(ldapAuthenticationProvider());
         return http.build();
     }
 
@@ -101,27 +104,42 @@ public class SecurityConfig {
         };
     }
 
+    // @Bean
+    // public LdapAuthenticationProvider ldapAuthenticationProvider(LdapContextSource ldapContextSource) {
+    //     BindAuthenticator ldapAuthenticator = new BindAuthenticator(ldapContextSource);
+    //     ldapAuthenticator.setUserDnPatterns(new String[]{"uid={0},ou=people"});
+    //     DefaultLdapAuthoritiesPopulator authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource, "ou=groups,dc=springframework,dc=org");
+    //     authoritiesPopulator.setGroupRoleAttribute("cn");
+    //     return new LdapAuthenticationProvider(ldapAuthenticator, authoritiesPopulator);
+    // }
+
     @Bean
-    public LdapAuthenticationProvider ldapAuthenticationProvider(LdapContextSource ldapContextSource) {
-        BindAuthenticator ldapAuthenticator = new BindAuthenticator(ldapContextSource);
-        ldapAuthenticator.setUserDnPatterns(new String[]{"uid={0},ou=people,dc=springframework,dc=org"});
-        DefaultLdapAuthoritiesPopulator authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource, "ou=groups,dc=springframework,dc=org");
-        authoritiesPopulator.setGroupRoleAttribute("cn");
-        return new LdapAuthenticationProvider(ldapAuthenticator, authoritiesPopulator);
+    public LdapAuthenticationProvider ldapAuthenticationProvider() {
+        LdapAuthenticator authenticator = new BindAuthenticator(contextSource());
+        ((BindAuthenticator) authenticator).setUserSearch(
+            new FilterBasedLdapUserSearch("ou=people", "(uid={0})", contextSource()));
+
+        DefaultLdapAuthoritiesPopulator authoritiesPopulator = 
+            new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=groups");
+        authoritiesPopulator.setGroupSearchFilter("member={0}");
+
+        LdapAuthenticationProvider provider = new LdapAuthenticationProvider(authenticator, authoritiesPopulator);
+        return provider;
     }
 
     @Bean
-    public LdapContextSource ldapContextSource() {
+    public LdapContextSource contextSource() {
         LdapContextSource contextSource = new LdapContextSource();
         contextSource.setUrl(ldapUrls);
         contextSource.setUserDn(ldapUsername);
         contextSource.setPassword(ldapPassword);
+        contextSource.setBase("dc=springframework,dc=org");
         contextSource.afterPropertiesSet();
         return contextSource;
     }
 
     @Bean
     public LdapTemplate ldapTemplate() {
-        return new LdapTemplate(ldapContextSource());
+        return new LdapTemplate(contextSource());
     }
 }
