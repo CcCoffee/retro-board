@@ -1,5 +1,7 @@
 package org.example.service;
 
+import org.example.converter.UserConverter;
+import org.example.dto.UserDTO;
 import org.example.model.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.AttributesMapper;
@@ -51,7 +53,7 @@ public class LdapService {
      * @param employeeNumber 员工编号
      * @return 用户列表
      */
-    public List<UserDetail> searchUsersByEmployeeNumber(String employeeNumber) {
+    public List<UserDTO> searchUsersByEmployeeNumber(String employeeNumber) {
         if (employeeNumber == null || employeeNumber.length() <= 2) {
             return List.of(); // 如果employeeNumber为null或长度不大于2，返回空列表
         }
@@ -75,6 +77,6 @@ public class LdapService {
         if (userDetailList.isEmpty()) {
             return List.of();
         }
-        return userDetailList.stream().limit(3).collect(Collectors.toList());
+        return userDetailList.stream().limit(3).map(UserConverter::toDTO).collect(Collectors.toList());
     }
 }

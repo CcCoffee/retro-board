@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.dto.UserDTO;
 import org.example.model.UserDetail;
 import org.example.service.LdapService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public List<UserDetail> searchUsers(@RequestParam("employeeNumber") String employeeNumber) {
+    public List<UserDTO> searchUsers(@RequestParam("employeeNumber") String employeeNumber) {
         return ldapService.searchUsersByEmployeeNumber(employeeNumber);
     }
     

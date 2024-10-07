@@ -1,5 +1,6 @@
 package org.example.util;
 
+import org.example.converter.UserConverter;
 import org.example.dto.UserDTO;
 import org.example.model.UserDetail;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,20 +12,12 @@ public class LoginUserUtil {
     public UserDTO getCurrentUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetail) {
-            return mapUserDetailToDTO((UserDetail) principal);
+            return UserConverter.toDTO((UserDetail) principal);
         }
         throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
     }
 
     public void logout() {
         SecurityContextHolder.getContext().setAuthentication(null);
-    }
-
-    public UserDTO mapUserDetailToDTO(UserDetail userDetail) {
-        return new UserDTO(
-            userDetail.getEmployeeNumber(),
-            userDetail.getUsername(),
-            userDetail.getMail()
-        );
     }
 }

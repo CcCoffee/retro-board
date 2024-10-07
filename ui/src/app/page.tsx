@@ -28,14 +28,6 @@ const typesInfo = [
   { id: "bad", title: "Bad", color: "bg-red-100", indicatorColor: "bg-red-300" },
 ]
 
-const users: User[] = [
-  { id: "E001", name: "张三", email: "zhangsan@example.com" },
-  { id: "E002", name: "李四", email: "lisi@example.com" },
-  { id: "E003", name: "王五", email: "wangwu@example.com" },
-  { id: "E004", name: "赵六", email: "zhaoliu@example.com" },
-  { id: "E005", name: "钱七", email: "qianqi@example.com" },
-]
-
 export default function RetroBoard() {
   const [isLoading, setIsLoading] = useState(true)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -357,7 +349,6 @@ export default function RetroBoard() {
             {isSidebarOpen && !isHistoryMode && (
               <ActionItemSidebar
                 actionItems={actionItems}
-                users={users}
                 onActionItemSubmit={handleActionItemSubmit}
                 onActionItemDelete={handleActionItemDelete}
                 onActionItemEdit={handleActionItemEdit}

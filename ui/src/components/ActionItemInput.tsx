@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { debounce } from 'lodash'
+import { retroService } from '@/services/retroService'
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -11,12 +13,11 @@ import { format, setHours, setMinutes, setSeconds, setMilliseconds, startOfDay }
 import { ActionItem, User } from "@/types/retro"
 
 interface ActionItemInputProps {
-  users: User[]
   onSubmit: (actionItem: Omit<ActionItem, 'id' | 'createdAt'>) => void
   editingActionItem: ActionItem | null
 }
 
-const ActionItemInput: React.FC<ActionItemInputProps> = ({ users, onSubmit, editingActionItem }) => {
+const ActionItemInput: React.FC<ActionItemInputProps> = ({ onSubmit, editingActionItem }) => {
   const [newActionItem, setNewActionItem] = useState<Omit<ActionItem, 'id' | 'createdAt'>>({
     assignee: { id: "", name: "", email: "" },
     dueDate: "",
@@ -24,6 +25,24 @@ const ActionItemInput: React.FC<ActionItemInputProps> = ({ users, onSubmit, edit
   })
   const [openAssignee, setOpenAssignee] = useState(false)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
+  const [users, setUsers] = useState<User[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const debouncedSearch = useCallback(
+    debounce(async (employeeNumber: string) => {
+      if (employeeNumber.trim() !== '') {
+        const searchedUsers = await retroService.searchUsers(employeeNumber)
+        setUsers(searchedUsers)
+      } else {
+        setUsers([])
+      }
+    }, 300),
+    []
+  )
+
+  useEffect(() => {
+    debouncedSearch(searchQuery)
+  }, [searchQuery, debouncedSearch])
 
   useEffect(() => {
     if (editingActionItem) {
@@ -84,7 +103,11 @@ const ActionItemInput: React.FC<ActionItemInputProps> = ({ users, onSubmit, edit
         </PopoverTrigger>
         <PopoverContent className="w-full p-0">
           <Command>
-            <CommandInput placeholder="Search assignee..." />
+            <CommandInput 
+              placeholder="Search by employee number..." 
+              value={searchQuery}
+              onValueChange={setSearchQuery}
+            />
             <CommandList>
               <CommandEmpty>No assignee found.</CommandEmpty>
               <CommandGroup>

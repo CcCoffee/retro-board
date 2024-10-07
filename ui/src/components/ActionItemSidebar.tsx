@@ -3,11 +3,10 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import ActionItemInput from '@/components/ActionItemInput'
 import ActionItemList from '@/components/ActionItemList'
-import { ActionItem, User } from "@/types/retro"
+import { ActionItem } from "@/types/retro"
 
 interface ActionItemSidebarProps {
   actionItems: ActionItem[]
-  users: User[]
   onActionItemSubmit: (actionItem: Omit<ActionItem, 'id' | 'createdAt'>) => void
   onActionItemDelete: (itemId: number) => void
   onActionItemEdit: (item: ActionItem) => void
@@ -16,7 +15,6 @@ interface ActionItemSidebarProps {
 
 const ActionItemSidebar: React.FC<ActionItemSidebarProps> = ({
   actionItems,
-  users,
   onActionItemSubmit,
   onActionItemDelete,
   onActionItemEdit,
@@ -29,7 +27,6 @@ const ActionItemSidebar: React.FC<ActionItemSidebarProps> = ({
     <ScrollArea className="w-[300px] pr-4">
       <h3 className="text-lg font-bold mb-2 font-heading">Action Items</h3>
       <ActionItemInput 
-        users={users}
         onSubmit={onActionItemSubmit}
         editingActionItem={editingActionItem}
       />

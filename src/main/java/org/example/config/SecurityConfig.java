@@ -58,11 +58,9 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)  // 禁用 CSRF
                 .authorizeHttpRequests((requests) -> requests
-                        .anyRequest().permitAll())
-//                        .requestMatchers("/", "/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess").permitAll()
-//                        .requestMatchers("/_next/**", "/*.js", "/*.css", "/*.html", "/*.jpg", "/*.png", "/*.gif", "/*.svg", "/favicon.ico").permitAll()
-//                        .requestMatchers("/api/users").permitAll()
-//                        .anyRequest().fullyAuthenticated())
+                        .requestMatchers("/", "/api/login", "/login", "/login.html", "/loginSuccess", "/loginFail", "/logoutSuccess").permitAll()
+                        .requestMatchers("/_next/**", "/*.js", "/*.css", "/*.html", "/*.jpg", "/*.png", "/*.gif", "/*.svg", "/favicon.ico").permitAll()
+                        .anyRequest().fullyAuthenticated())
                 .formLogin((form) -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/api/login")

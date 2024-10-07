@@ -1,6 +1,7 @@
 import { RetroCard, ActionItem, RetroBoardHistory } from "@/types";
 import axiosInstance from "@/config/axiosConfig";
 import { showToast } from "@/utils/toast";
+import { User } from "@/types/retro"
 
 export const retroService = {
   getCards: async (): Promise<RetroCard[]> => {
@@ -124,6 +125,19 @@ export const retroService = {
     } catch (error) {
       console.error(`Failed to fetch retro board history with id ${id}:`, error);
       showToast.error(`Failed to fetch retro board history with id ${id}`);
+      throw error;
+    }
+  },
+
+  searchUsers: async (employeeNumber: string): Promise<User[]> => {
+    try {
+      const response = await axiosInstance.get(`/users/search`, {
+        params: { employeeNumber }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to search users:', error);
+      showToast.error("Failed to search users");
       throw error;
     }
   },
