@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 @RestController
@@ -21,4 +21,10 @@ public class UserController {
     public UserDetail getUserByEmployeeNumber(@PathVariable("employeeNumber") String employeeNumber) {
         return ldapService.getUserByEmployeeNumber(employeeNumber);
     }
+
+    @GetMapping("/search")
+    public List<UserDetail> searchUsers(@RequestParam("employeeNumber") String employeeNumber) {
+        return ldapService.searchUsersByEmployeeNumber(employeeNumber);
+    }
+    
 }
