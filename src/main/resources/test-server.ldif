@@ -36,75 +36,75 @@ objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
-cn: 张三
-sn: 张
+cn: John Smith
+sn: Smith
 uid: E001
 userPassword: 1234
-mail: zhangsan@example.com
-displayName: 张三
+mail: johnsmith@example.com
+displayName: John Smith
 employeeType: EMPLOYEE
 employeeNumber: E001
-givenName: 三
+givenName: John
 
 dn: uid=E002,ou=people,dc=springframework,dc=org
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
-cn: 李四
-sn: 李
+cn: Emma Johnson
+sn: Johnson
 uid: E002
 userPassword: 1234
-mail: lisi@example.com
-displayName: 李四
+mail: emmajohnson@example.com
+displayName: Emma Johnson
 employeeType: EMPLOYEE
 employeeNumber: E002
-givenName: 四
+givenName: Emma
 
 dn: uid=E003,ou=people,dc=springframework,dc=org
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
-cn: 王五
-sn: 王
+cn: Michael Brown
+sn: Brown
 uid: E003
 userPassword: 1234
-mail: wangwu@example.com
-displayName: 王五
+mail: michaelbrown@example.com
+displayName: Michael Brown
 employeeType: EMPLOYEE
 employeeNumber: E003
-givenName: 五
+givenName: Michael
 
 dn: uid=E004,ou=people,dc=springframework,dc=org
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
-cn: 赵六
-sn: 赵
+cn: Sarah Davis
+sn: Davis
 uid: E004
 userPassword: 1234
-mail: zhaoliu@example.com
-displayName: 赵六
+mail: sarahdavis@example.com
+displayName: Sarah Davis
 employeeType: EMPLOYEE
 employeeNumber: E004
-givenName: 六
+givenName: Sarah
 
 dn: uid=E005,ou=people,dc=springframework,dc=org
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
-cn: 钱七
-sn: 钱
+cn: David Wilson
+sn: Wilson
 uid: E005
 userPassword: 1234
-mail: qianqi@example.com
-displayName: 钱七
+mail: davidwilson@example.com
+displayName: David Wilson
 employeeType: EMPLOYEE
 employeeNumber: E005
-givenName: 七
+givenName: David
 
 dn: cn=users,ou=groups,dc=springframework,dc=org
 objectclass: top

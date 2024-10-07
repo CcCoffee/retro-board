@@ -129,10 +129,10 @@ export const retroService = {
     }
   },
 
-  searchUsers: async (employeeNumber: string): Promise<User[]> => {
+  searchUsers: async (query: string): Promise<User[]> => {
     try {
       const response = await axiosInstance.get(`/users/search`, {
-        params: { employeeNumber }
+        params: { query }
       });
       return response.data;
     } catch (error) {

@@ -24,8 +24,8 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public List<UserDTO> searchUsers(@RequestParam("employeeNumber") String employeeNumber) {
-        return ldapService.searchUsersByEmployeeNumber(employeeNumber);
+    public List<UserDTO> searchUsers(@RequestParam("query") String query) {
+        return ldapService.searchUsers(query);
     }
     
 }

@@ -29,9 +29,10 @@ const ActionItemInput: React.FC<ActionItemInputProps> = ({ onSubmit, editingActi
   const [searchQuery, setSearchQuery] = useState('')
 
   const debouncedSearch = useCallback(
-    debounce(async (employeeNumber: string) => {
-      if (employeeNumber.trim() !== '') {
-        const searchedUsers = await retroService.searchUsers(employeeNumber)
+    debounce(async (query: string) => {
+      // TODO update query.length > 1 to query.length > 2
+      if (query.trim() !== '' && query.length > 1) {
+        const searchedUsers = await retroService.searchUsers(query)
         setUsers(searchedUsers)
       } else {
         setUsers([])
@@ -104,7 +105,7 @@ const ActionItemInput: React.FC<ActionItemInputProps> = ({ onSubmit, editingActi
         <PopoverContent className="w-full p-0">
           <Command>
             <CommandInput 
-              placeholder="Search by employee number..." 
+              placeholder="Search by name or employee number..." 
               value={searchQuery}
               onValueChange={setSearchQuery}
             />
